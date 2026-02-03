@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="marronPrimario">#795548</color>
+    <color name="marronClaro">#D7CCC8</color>
+    <color name="marronOscuro">#5D4037</color>
+    <color name="grisAcento">#9E9E9E</color>
+    <color name="blanco">#FFFFFF</color>
+    <color name="textoPrincipal">#212121</color>
+    <color name="textoSecundario">#757575</color>
+    <color name="divisor">#BDBDBD</color>
+    <color name="negro">#000000</color>
 </resources>

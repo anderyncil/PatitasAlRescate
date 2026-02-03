@@ -1,8 +1,17 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="Base.Theme.PatitasAlRescate" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/marronPrimario</item>
+        <item name="colorOnPrimary">@color/blanco</item>
+        <item name="colorPrimaryContainer">@color/marronClaro</item>
+        <item name="colorOnPrimaryContainer">@color/marronOscuro</item>
+        <item name="colorSecondary">@color/grisAcento</item>
+        <item name="colorOnSecondary">@color/negro</item>
+        <item name="android:statusBarColor">@color/marronOscuro</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:textColorPrimary">@color/textoPrincipal</item>
+        <item name="android:textColorSecondary">@color/textoSecundario</item>
+
     </style>
 
     <style name="Theme.PatitasAlRescate" parent="Base.Theme.PatitasAlRescate" />
