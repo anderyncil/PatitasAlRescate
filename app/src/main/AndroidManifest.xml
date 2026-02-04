@@ -19,9 +19,14 @@
             android:name=".Controllers.ActividadRegistrarMascota"
             android:exported="false" />
         <activity
-            android:name=".Controllers.ActividadInicioRefugio"
+
+            android:name=".Controllers.ActividadTestSync"
             android:exported="false"
-            android:parentActivityName=".Controllers.ActividadIniciarSesion"/>
+
+
+
+            />
+
         <activity
             android:name=".Controllers.ActividadAdopcion"
             android:exported="false" />
@@ -64,8 +69,9 @@
             android:exported="false"
             android:theme="@style/Theme.PatitasAlRescate" />
         <activity
-            android:name=".Controllers.ActividadTestSync"
-            android:exported="true">
+            android:name=".Controllers.ActividadInicioRefugio"
+            android:exported="true"
+            android:parentActivityName=".Controllers.ActividadIniciarSesion" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
