@@ -39,19 +39,15 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
         etEdad = findViewById(R.id.rj_text_adopt_edad);
         spSexo = findViewById(R.id.rj_combo_adopt_sexo);
 
-        // Crear el adaptador usando la lista que definimos en strings.xml
+
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.opciones_sexo, android.R.layout.simple_spinner_item);
 
-        // Especificar el diseño que se usará cuando aparezcan las opciones
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        // Aplicar el adaptador al spinner
         spSexo.setAdapter(adapter);
 
-
         findViewById(R.id.rj_button_registrar_adoptante).setOnClickListener(v -> registrarUsuario());
-
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.registrar_adoptante), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -60,13 +56,12 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
         });
     }
     private void registrarUsuario(){
-
-
         String nombre = etNombre.getText().toString().trim();
         String correo = etCorreo.getText().toString().trim();
         String passTextoPlano = etPass.getText().toString().trim();
         String telefono = etTelefono.getText().toString().trim();
 
+       //validacion para sexo
         int seleccion = spSexo.getSelectedItemPosition();
         if (seleccion == 0) {
             Toast.makeText(this, "Por favor, seleccione un sexo", Toast.LENGTH_SHORT).show();
@@ -75,11 +70,9 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
 
         String sexo = spSexo.getSelectedItem().toString().trim();
         String edadStr = etEdad.getText().toString().trim();
-
-
-
         String passEncriptada = SeguridadUtils.encriptar(passTextoPlano);
 
+        // validaciones de los datos
         if(nombre.isEmpty()) {
             etNombre.setError("Aún no ha ingresado su NOMBRE");
             return;
@@ -113,7 +106,7 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
             return;
         }
 
-
+        //agregar a la base de datos
         Adoptante nuevoAdoptante = new Adoptante();
 
         nuevoAdoptante.setNombre(nombre);
