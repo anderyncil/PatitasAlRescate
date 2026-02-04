@@ -99,4 +99,18 @@ public class DAOAdoptante {
         // CORRECCIÓN: Convertir int a String
         db.delete("adoptantes", "id_adoptante = ?", new String[]{String.valueOf(idAdoptante)});
     }
+    //Validar que no haya correo repetidos
+    public boolean existeCorreo(String correo) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        // Consultamos solo la columna id para que la búsqueda sea más rápida
+        Cursor cursor = db.query("adoptantes",
+                new String[]{"id_adoptante"},
+                "correo = ?",
+                new String[]{correo},
+                null, null, null);
+
+        boolean existe = cursor.getCount() > 0;
+        cursor.close();
+        return existe;
+    }
 }

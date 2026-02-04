@@ -3,6 +3,7 @@ package com.patitasalrescate.Controllers;
 import android.net.eap.EapSessionConfig;
 import android.os.Bundle;
 import android.util.Patterns;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -38,20 +39,40 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
         etEdad = findViewById(R.id.rj_text_adopt_edad);
         spSexo = findViewById(R.id.rj_combo_adopt_sexo);
 
+        // Crear el adaptador usando la lista que definimos en strings.xml
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.opciones_sexo, android.R.layout.simple_spinner_item);
+
+        // Especificar el diseño que se usará cuando aparezcan las opciones
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Aplicar el adaptador al spinner
+        spSexo.setAdapter(adapter);
+
+
         findViewById(R.id.rj_button_registrar_adoptante).setOnClickListener(v -> registrarUsuario());
 
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.regitrar_adoptante), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.registrar_adoptante), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
     }
     private void registrarUsuario(){
+
+
         String nombre = etNombre.getText().toString().trim();
         String correo = etCorreo.getText().toString().trim();
         String passTextoPlano = etPass.getText().toString().trim();
         String telefono = etTelefono.getText().toString().trim();
+
+        int seleccion = spSexo.getSelectedItemPosition();
+        if (seleccion == 0) {
+            Toast.makeText(this, "Por favor, seleccione un sexo", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String sexo = spSexo.getSelectedItem().toString().trim();
         String edadStr = etEdad.getText().toString().trim();
 
@@ -73,6 +94,10 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
             etCorreo.setError("Ingrese un formato de CORRO válido \n ejemplo: @gmail.com");
             return;
         }
+        if(daoAdoptante.existeCorreo(correo)){
+            etCorreo.setError("Este CORREO ya está registrado, Intenta con otro");
+            return;
+        }
 
         if(telefono.length() != 9){
             etTelefono.setError("El TELEFONO debe contar 9 dígitos");
@@ -90,6 +115,7 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
 
 
         Adoptante nuevoAdoptante = new Adoptante();
+
         nuevoAdoptante.setNombre(nombre);
         nuevoAdoptante.setCorreo(correo);
         nuevoAdoptante.setPassword(passEncriptada);
@@ -102,7 +128,7 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
 
         if (resultado != -1) {
             Toast.makeText(this, "¡Registro exitoso! Bienvenido a Patitas", Toast.LENGTH_LONG).show();
-            finish(); // Cierra esta actividad y regresa a la anterior
+            finish();
         } else {
             Toast.makeText(this, "Error al guardar en la base de datos", Toast.LENGTH_SHORT).show();
         }

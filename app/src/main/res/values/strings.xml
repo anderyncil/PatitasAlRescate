@@ -42,4 +42,11 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string-array name="opciones_sexo">
+        <item>Seleccione su sexo</item>
+        <item>Masculino</item>
+        <item>Femenino</item>
+    </string-array>
+
+
 </resources>
