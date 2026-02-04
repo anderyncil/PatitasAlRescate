@@ -15,7 +15,6 @@ import com.patitasalrescate.ui.AdaptadorMascotas;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class ActividadTestSync extends AppCompatActivity {
     private DAOMascota daoMascota;
@@ -25,63 +24,64 @@ public class ActividadTestSync extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Habilitar diseño moderno
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_test_sync);
 
-        // Inicializar DAO y Vista
+        // Inicializar DAO y Managers
         daoMascota = new DAOMascota(this);
         syncManager = new SyncManager(this);
+
+        // Configurar RecyclerView
         rvMascotas = findViewById(R.id.rv_mascotas);
         rvMascotas.setLayoutManager(new LinearLayoutManager(this));
 
-        // BOTÓN: INSERTAR
-        // En el botón Insertar
-        // En el botón Insertar
+        // --- BOTÓN: INSERTAR LOCAL ---
         findViewById(R.id.btn_insert_mascota).setOnClickListener(v -> {
             List<String> fotosList = new ArrayList<>();
             fotosList.add("https://picsum.photos/200/300");
-            fotosList.add("https://picsum.photos/200/301");
 
-            String idRefugioValido = "13373e9e-27b0-488d-ac76-bd51dd09406a";  // ← TU UUID REAL del refugio
+            int idRefugioValido = 1;  // Asumiendo que existe el refugio con ID 1
 
+            // CREAMOS EL OBJETO CON EL CONSTRUCTOR DE TU MODELO
+            // Orden: id, idRef, esp, raza, edad, temp, hist, fotos, adoptado, NOMBRE, sync
             Mascota masc = new Mascota(
-                    UUID.randomUUID().toString(),
-                    idRefugioValido,  // ← UUID válido
-                    "Gato",
-                    "Siames",
-                    12,
-                    "Juguetón",
-                    "Historia de rescate",
-                    fotosList,
-                    false,
-                    System.currentTimeMillis()
+                    0,               // ID: 0 (SQLite pondrá el autoincrement)
+                    idRefugioValido,
+                    "Gato",          // Especie
+                    "Siames",        // Raza
+                    12,              // Edad
+                    "Juguetón",      // Temperamento
+                    "Historia...",   // Historia
+                    fotosList,       // Fotos
+                    false,           // Es Adoptado
+                    "Garfield",      // NOMBRE (Ubicación correcta)
+                    System.currentTimeMillis() // LastSync
             );
 
             long id = daoMascota.insertar(masc);
             if (id > 0) {
-                Toast.makeText(this, "Mascota guardada localmente", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Mascota guardada. ID: " + id, Toast.LENGTH_SHORT).show();
+                actualizarLista(); // Refrescar vista
             } else {
                 Toast.makeText(this, "Error al guardar localmente", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // BOTÓN: SYNC (Supabase) - CORREGIDO
+        // --- BOTÓN: SYNC (Supabase) ---
         findViewById(R.id.btn_sync_supabase).setOnClickListener(view -> {
-            Toast.makeText(this, "Sincronizando con Supabase...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Sincronizando...", Toast.LENGTH_SHORT).show();
 
-            // Ejecutar la sincronización
+            // Llamamos al manager de sincronización
             syncManager.sincronizarTodo();
 
-            // Recargar la lista después de un pequeño retraso para dar tiempo a la red
+            // Simulamos un delay para recargar la lista cuando termine (idealmente usar callbacks)
             view.postDelayed(() -> {
-                List<Mascota> lista = daoMascota.listarTodos();
-                rvMascotas.setAdapter(new AdaptadorMascotas(lista));
-                Toast.makeText(this, "Lista actualizada", Toast.LENGTH_SHORT).show();
+                actualizarLista();
+                Toast.makeText(this, "Sincronización finalizada", Toast.LENGTH_SHORT).show();
             }, 2000);
         });
 
-        // BOTÓN: LISTAR
+        // --- BOTÓN: LISTAR ---
         findViewById(R.id.btn_listar).setOnClickListener(v -> {
             actualizarLista();
         });
@@ -90,15 +90,17 @@ public class ActividadTestSync extends AppCompatActivity {
     private void actualizarLista() {
         List<Mascota> lista = daoMascota.listarTodos();
         if (lista.isEmpty()) {
-            Toast.makeText(this, "No hay mascotas en la base de datos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No hay mascotas registradas", Toast.LENGTH_SHORT).show();
         } else {
-            rvMascotas.setAdapter(new AdaptadorMascotas(lista));
+
+            rvMascotas.setAdapter(new AdaptadorMascotas(lista, true));
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        syncManager.sincronizarTodo(); // Se ejecuta cada vez que vuelves a la pantalla
+        // Opcional: actualizar al volver a la pantalla
+        // actualizarLista();
     }
 }

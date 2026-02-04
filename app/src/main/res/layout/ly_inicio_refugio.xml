@@ -5,6 +5,56 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Controllers.ActividadInicioRefugio">
+    tools:context=".Controllers.ActividadInicioRefugio"
+    android:background="@color/blanco">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarInicioRefugio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:fontFamily="@font/chewy"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="Refugio"
+        app:titleTextColor="@color/blanco" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/menuInicioRefugio"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/marronPrimario"
+        app:itemIconTint="@color/blanco"
+        app:itemTextColor="@color/blanco"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/menu_refugio" />
+
+    <TextView
+        android:id="@+id/txtBienvenidoRefugio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:fontFamily="@font/chewy"
+        android:text="TextView"
+        android:textColor="@color/marronPrimario"
+        android:textSize="33sp"
+        app:layout_constraintBottom_toTopOf="@+id/menuInicioRefugio"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="BIENVENIDO " />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/txtBienvenidoRefugio"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbarInicioRefugio"
+        app:srcCompat="@drawable/jlbienvenidorefugio" />
 </androidx.constraintlayout.widget.ConstraintLayout>

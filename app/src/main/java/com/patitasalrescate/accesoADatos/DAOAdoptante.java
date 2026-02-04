@@ -18,13 +18,13 @@ public class DAOAdoptante {
         dbHelper = new BDConstruir(context);
     }
 
-    // Insertar adoptante
     public long insertar(Adoptante adoptante) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("id_adoptante", adoptante.getIdAdoptante());
+        // NO insertamos id_adoptante manualmente, es AUTOINCREMENT
         values.put("nombre", adoptante.getNombre());
         values.put("correo", adoptante.getCorreo());
+        values.put("password", adoptante.getPassword());
         values.put("num_celular", adoptante.getNumCelular());
         values.put("edad", adoptante.getEdad());
         values.put("sexo", adoptante.getSexo());
@@ -33,7 +33,6 @@ public class DAOAdoptante {
         return db.insert("adoptantes", null, values);
     }
 
-    // Listar todos los adoptantes
     public List<Adoptante> listarTodos() {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<Adoptante> adoptantes = new ArrayList<>();
@@ -42,13 +41,17 @@ public class DAOAdoptante {
         if (cursor.moveToFirst()) {
             do {
                 Adoptante adopt = new Adoptante();
-                adopt.setIdAdoptante(cursor.getString(cursor.getColumnIndexOrThrow("id_adoptante")));
+                // CORRECCIÓN: Leer el ID como INT
+                adopt.setIdAdoptante(cursor.getInt(cursor.getColumnIndexOrThrow("id_adoptante")));
+
                 adopt.setNombre(cursor.getString(cursor.getColumnIndexOrThrow("nombre")));
                 adopt.setCorreo(cursor.getString(cursor.getColumnIndexOrThrow("correo")));
+                adopt.setPassword(cursor.getString(cursor.getColumnIndexOrThrow("password")));
                 adopt.setNumCelular(cursor.getString(cursor.getColumnIndexOrThrow("num_celular")));
                 adopt.setEdad(cursor.getInt(cursor.getColumnIndexOrThrow("edad")));
                 adopt.setSexo(cursor.getString(cursor.getColumnIndexOrThrow("sexo")));
                 adopt.setLastSync(cursor.getLong(cursor.getColumnIndexOrThrow("last_sync")));
+
                 adoptantes.add(adopt);
             } while (cursor.moveToNext());
         }
@@ -56,20 +59,19 @@ public class DAOAdoptante {
         return adoptantes;
     }
 
-    // Buscar adoptante por correo (útil para login)
-    public Adoptante buscarPorCorreo(String correo) {
+    // LOGIN ADOPTANTE
+    public Adoptante login(String correo, String passwordEncriptada) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.query("adoptantes", null, "correo = ?", new String[]{correo}, null, null, null);
+        Cursor cursor = db.query("adoptantes", null, "correo = ? AND password = ?",
+                new String[]{correo, passwordEncriptada}, null, null, null);
 
         if (cursor.moveToFirst()) {
             Adoptante adopt = new Adoptante();
-            adopt.setIdAdoptante(cursor.getString(cursor.getColumnIndexOrThrow("id_adoptante")));
+            // CORRECCIÓN: Leer el ID como INT
+            adopt.setIdAdoptante(cursor.getInt(cursor.getColumnIndexOrThrow("id_adoptante")));
             adopt.setNombre(cursor.getString(cursor.getColumnIndexOrThrow("nombre")));
             adopt.setCorreo(cursor.getString(cursor.getColumnIndexOrThrow("correo")));
-            adopt.setNumCelular(cursor.getString(cursor.getColumnIndexOrThrow("num_celular")));
-            adopt.setEdad(cursor.getInt(cursor.getColumnIndexOrThrow("edad")));
-            adopt.setSexo(cursor.getString(cursor.getColumnIndexOrThrow("sexo")));
-            adopt.setLastSync(cursor.getLong(cursor.getColumnIndexOrThrow("last_sync")));
+
             cursor.close();
             return adopt;
         }
@@ -77,7 +79,6 @@ public class DAOAdoptante {
         return null;
     }
 
-    // Actualizar adoptante
     public int actualizar(Adoptante adoptante) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -87,12 +88,15 @@ public class DAOAdoptante {
         values.put("sexo", adoptante.getSexo());
         values.put("last_sync", adoptante.getLastSync());
 
-        return db.update("adoptantes", values, "id_adoptante = ?", new String[]{adoptante.getIdAdoptante()});
+        // CORRECCIÓN: Convertir el ID int a String para el array de argumentos
+        return db.update("adoptantes", values, "id_adoptante = ?",
+                new String[]{String.valueOf(adoptante.getIdAdoptante())});
     }
 
-    // Eliminar adoptante
-    public void eliminar(String idAdoptante) {
+    // CORRECCIÓN: Recibir int como parámetro
+    public void eliminar(int idAdoptante) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete("adoptantes", "id_adoptante = ?", new String[]{idAdoptante});
+        // CORRECCIÓN: Convertir int a String
+        db.delete("adoptantes", "id_adoptante = ?", new String[]{String.valueOf(idAdoptante)});
     }
 }

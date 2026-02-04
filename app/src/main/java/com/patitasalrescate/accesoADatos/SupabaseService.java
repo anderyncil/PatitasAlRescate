@@ -8,11 +8,13 @@ import com.patitasalrescate.model.Refugio;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.io.File;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.MultipartBody;
 import okhttp3.Response;
 
 public class SupabaseService {
@@ -63,7 +65,34 @@ public class SupabaseService {
             return true;
         }
     }
+    public String subirFoto(byte[] imagenBytes, String nombreArchivo) {
+        // 1. URL específica del Storage
+        String urlStorage = SUPABASE_URL + "/storage/v1/object/imagenes-refugio/" + nombreArchivo;
 
+        // 2. Preparamos el cuerpo del archivo
+        RequestBody requestBody = RequestBody.create(imagenBytes, MediaType.parse("image/jpeg"));
+
+        // 3. Petición POST
+        Request request = new Request.Builder()
+                .url(urlStorage)
+                .addHeader("apikey", ANON_KEY)
+                .addHeader("Authorization", "Bearer " + ANON_KEY)
+                .addHeader("Content-Type", "image/jpeg")
+                .post(requestBody)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                // Si subió bien, construimos la URL pública manualmente
+                return SUPABASE_URL + "/storage/v1/object/public/imagenes-refugio/" + nombreArchivo;
+            } else {
+                android.util.Log.e("Supabase", "Error subiendo: " + response.code() + " - " + response.message());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null; // Retorna null si falló
+    }
 
     // Puedes agregar más: update, delete, getRefugios, etc.
 }

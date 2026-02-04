@@ -1,4 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item
+        android:id="@+id/itemInicioRefugio"
+        android:icon="@android:drawable/ic_menu_home"
+        android:title="Inicio"
+        />
+    <item
+        android:id="@+id/itemRegistrarMascotaRefugio"
+        android:icon="@android:drawable/ic_input_add"
+        android:title="Registrar Mascota"
+        />
+
+    <item
+        android:id="@+id/itemListarMacostaRefugio"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="Listar Mascotas"
+       />
+
+    <item
+        android:id="@+id/itemSalirRefugio"
+        android:icon="@android:drawable/ic_lock_power_off"
+        android:title="Cerrar Sesión"
+        />
 </menu>

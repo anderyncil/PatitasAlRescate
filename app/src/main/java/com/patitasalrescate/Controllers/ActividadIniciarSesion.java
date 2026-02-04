@@ -22,5 +22,9 @@ public class ActividadIniciarSesion extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        //CONSIDERA ENVIAR EL NOMBRE DEL REFUGIO CUANDO SEA DE TIPO REFUGIO CON PUTEXTRAS
+        // Y PONLE DE NOMBRE: nombre_refugio_key
+        //PORQUE LO LLAMARÉ EN INICIO REFUGIO, LO MISMO HACER PARA INCIOADOPTANTE
+        // Y COORDINA CON LA PERSONA DE INICIO ADOPTANTE PARA VER COMO LO TRABAJAN
     }
 }

@@ -6,8 +6,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class BDConstruir extends SQLiteOpenHelper {
 
-    private static final String DB_NAME = "patitas_db";  // Nombre de la BD local
-    private static final int DB_VERSION = 1;  // Versión inicial
+    private static final String DB_NAME = "patitas_db";
+    private static final int DB_VERSION = 3;  // Subimos versión por cambio en tabla mascotas
 
     public BDConstruir(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -15,55 +15,58 @@ public class BDConstruir extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Tabla refugios (cache local)
+        // Tabla refugios
         db.execSQL("CREATE TABLE refugios (" +
-                "id_refugio TEXT PRIMARY KEY, " +  // UUID como String
+                "id_refugio INTEGER PRIMARY KEY AUTOINCREMENT, " + // ID numérico
                 "nombre TEXT NOT NULL, " +
                 "direccion TEXT, " +
                 "latitud REAL, " +
                 "longitud REAL, " +
                 "correo TEXT, " +
+                "password TEXT, " +
                 "num_celular TEXT, " +
-                "last_sync INTEGER" +  // Timestamp para sync con Supabase
+                "foto TEXT,"+
+                "last_sync INTEGER" +
                 ")");
 
-        // Tabla mascotas
+        // Tabla mascotas (Agregado campo 'nombre')
         db.execSQL("CREATE TABLE mascotas (" +
-                "id_mascota TEXT PRIMARY KEY, " +
-                "id_refugio TEXT, " +
+                "id_mascota INTEGER PRIMARY KEY AUTOINCREMENT, " + // ID numérico
+                "id_refugio INTEGER, " + // Relación numérica
+                "nombre TEXT, " +        // NUEVO CAMPO NOMBRE
                 "especie TEXT NOT NULL, " +
                 "raza TEXT, " +
                 "edad INTEGER, " +
                 "temperamento TEXT, " +
                 "historia TEXT, " +
-                "fotos TEXT, " +  // URLs separadas por coma o JSON
-                "es_adoptado INTEGER DEFAULT 0, " +  // 0=false
+                "fotos TEXT, " +
+                "es_adoptado INTEGER DEFAULT 0, " +
                 "last_sync INTEGER" +
                 ")");
 
-        // Tabla adoptantes (para usuario logueado o cache)
+        // Tabla adoptantes
         db.execSQL("CREATE TABLE adoptantes (" +
-                "id_adoptante TEXT PRIMARY KEY, " +
+                "id_adoptante INTEGER PRIMARY KEY AUTOINCREMENT, " + // ID numérico
                 "nombre TEXT, " +
                 "correo TEXT, " +
+                "password TEXT, " +
                 "num_celular TEXT, " +
                 "edad INTEGER, " +
                 "sexo TEXT, " +
                 "last_sync INTEGER" +
                 ")");
 
-        // Tabla favoritos (corregida: columnas primero, constraint después)
+        // Tabla favoritos
         db.execSQL("CREATE TABLE favoritos (" +
-                "id_adoptante TEXT, " +
-                "id_mascota TEXT, " +
-                "last_sync INTEGER, " +  // Movido aquí, antes de PRIMARY KEY
-                "PRIMARY KEY (id_adoptante, id_mascota)" +  // Constraint al final
+                "id_adoptante INTEGER, " +
+                "id_mascota INTEGER, " +
+                "last_sync INTEGER, " +
+                "PRIMARY KEY (id_adoptante, id_mascota)" +
                 ")");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Para desarrollo: Borra y recrea tablas
         db.execSQL("DROP TABLE IF EXISTS favoritos");
         db.execSQL("DROP TABLE IF EXISTS mascotas");
         db.execSQL("DROP TABLE IF EXISTS adoptantes");

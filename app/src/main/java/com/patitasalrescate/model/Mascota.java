@@ -10,14 +10,26 @@ public class Mascota {
 
     @SerializedName("id_mascota")
     @Expose
-    private String idMascota;
+    private int idMascota;
 
     @SerializedName("id_refugio")
     @Expose
-    private String idRefugio;
+    private int idRefugio;
 
     @Expose
     private String especie;
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    @Expose
+    private String nombre;
+
 
     @Expose
     private String raza;
@@ -45,8 +57,8 @@ public class Mascota {
 
     public Mascota() {}
 
-    public Mascota(String idMascota, String idRefugio, String especie, String raza, int edad,
-                   String temperamento, String historia, List<String> fotos, boolean esAdoptado, long lastSync) {
+    public Mascota(int idMascota, int idRefugio, String especie, String raza, int edad,
+                   String temperamento, String historia, List<String> fotos, boolean esAdoptado, String nombre, long lastSync) {
         this.idMascota = idMascota;
         this.idRefugio = idRefugio;
         this.especie = especie;
@@ -57,14 +69,15 @@ public class Mascota {
         this.fotos = fotos != null ? fotos : new ArrayList<>();
         this.esAdoptado = esAdoptado;
         this.lastSync = lastSync;
+        this.nombre=nombre;
     }
 
     // Getters y Setters completos
-    public String getIdMascota() { return idMascota; }
-    public void setIdMascota(String idMascota) { this.idMascota = idMascota; }
+    public int getIdMascota() { return idMascota; }
+    public void setIdMascota(int idMascota) { this.idMascota = idMascota; }
 
-    public String getIdRefugio() { return idRefugio; }
-    public void setIdRefugio(String idRefugio) { this.idRefugio = idRefugio; }
+    public int getIdRefugio() { return idRefugio; }
+    public void setIdRefugio(int  idRefugio) { this.idRefugio = idRefugio; }
 
     public String getEspecie() { return especie; }
     public void setEspecie(String especie) { this.especie = especie; }

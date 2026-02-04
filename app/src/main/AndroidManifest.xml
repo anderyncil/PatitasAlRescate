@@ -20,7 +20,8 @@
             android:exported="false" />
         <activity
             android:name=".Controllers.ActividadInicioRefugio"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".Controllers.ActividadIniciarSesion"/>
         <activity
             android:name=".Controllers.ActividadAdopcion"
             android:exported="false" />
@@ -50,7 +51,8 @@
             android:exported="false" />
         <activity
             android:name=".Controllers.ActividadRegistrarOrganizacion"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".Controllers.ActividadRegistro"/>
         <activity
             android:name=".Controllers.ActividadRegistro"
             android:exported="false" />
@@ -70,6 +72,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>
