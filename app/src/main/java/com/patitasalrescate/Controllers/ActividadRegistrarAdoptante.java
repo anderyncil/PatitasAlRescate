@@ -2,8 +2,11 @@ package com.patitasalrescate.Controllers;
 
 import android.net.eap.EapSessionConfig;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -11,6 +14,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.patitasalrescate.R;
 import com.patitasalrescate.accesoADatos.DAOAdoptante;
+import com.patitasalrescate.model.Adoptante;
+import com.patitasalrescate.utils.SeguridadUtils;
 
 public class ActividadRegistrarAdoptante extends AppCompatActivity {
 
@@ -33,6 +38,9 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
         etEdad = findViewById(R.id.rj_text_adopt_edad);
         spSexo = findViewById(R.id.rj_combo_adopt_sexo);
 
+        findViewById(R.id.rj_button_registrar_adoptante).setOnClickListener(v -> registrarUsuario());
+
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.regitrar_adoptante), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -40,13 +48,63 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
         });
     }
     private void registrarUsuario(){
-        String nombre = etNombre.getText().toString();
-        String correo = etCorreo.getText().toString();
-        String passTextoPlano = etPass.getText().toString();
-        String telefono = etTelefono.getText().toString();
-        String sexo = spSexo.getSelectedItem().toString();
-        int edad = Integer.parseInt(etEdad.getText().toString());
+        String nombre = etNombre.getText().toString().trim();
+        String correo = etCorreo.getText().toString().trim();
+        String passTextoPlano = etPass.getText().toString().trim();
+        String telefono = etTelefono.getText().toString().trim();
+        String sexo = spSexo.getSelectedItem().toString().trim();
+        String edadStr = etEdad.getText().toString().trim();
 
 
+
+        String passEncriptada = SeguridadUtils.encriptar(passTextoPlano);
+
+        if(nombre.isEmpty()) {
+            etNombre.setError("Aún no ha ingresado su NOMBRE");
+            return;
+        }else if(passTextoPlano.length() < 6){
+            etPass.setError("La CONTRASEÑA debe tener al menos 6 dígitos");
+            return;
+        }
+        if(correo.isEmpty()){
+            etCorreo.setError("Ingrese su CORREO");
+            return;
+        }else if(!Patterns.EMAIL_ADDRESS.matcher(correo).matches()){
+            etCorreo.setError("Ingrese un formato de CORRO válido \n ejemplo: @gmail.com");
+            return;
+        }
+
+        if(telefono.length() != 9){
+            etTelefono.setError("El TELEFONO debe contar 9 dígitos");
+            return;
+        }
+        if(edadStr.isEmpty()){
+            etEdad.setError("Ingrese su EDAD");
+            return;
+        }
+        int edad = Integer.parseInt(edadStr);
+        if(edad <= 8 || edad > 115){
+            etEdad.setError("Ingrese una edad válida (8-115)");
+            return;
+        }
+
+
+        Adoptante nuevoAdoptante = new Adoptante();
+        nuevoAdoptante.setNombre(nombre);
+        nuevoAdoptante.setCorreo(correo);
+        nuevoAdoptante.setPassword(passEncriptada);
+        nuevoAdoptante.setNumCelular(telefono);
+        nuevoAdoptante.setEdad(edad);
+        nuevoAdoptante.setSexo(sexo);
+        nuevoAdoptante.setLastSync(System.currentTimeMillis());
+
+        long resultado = daoAdoptante.insertar(nuevoAdoptante);
+
+        if (resultado != -1) {
+            Toast.makeText(this, "¡Registro exitoso! Bienvenido a Patitas", Toast.LENGTH_LONG).show();
+            finish(); // Cierra esta actividad y regresa a la anterior
+        } else {
+            Toast.makeText(this, "Error al guardar en la base de datos", Toast.LENGTH_SHORT).show();
+        }
     }
 }
