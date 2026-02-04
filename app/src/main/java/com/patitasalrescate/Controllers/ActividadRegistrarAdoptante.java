@@ -30,7 +30,7 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.ly_registrar_adoptante);
 
-        //inicializamos
+        //inicializamos con los elementos del .xml
         daoAdoptante = new DAOAdoptante(this);
         etNombre = findViewById(R.id.rj_text_adopt_nombre);
         etCorreo = findViewById(R.id.rj_text_adopt_correo);
@@ -39,12 +39,12 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
         etEdad = findViewById(R.id.rj_text_adopt_edad);
         spSexo = findViewById(R.id.rj_combo_adopt_sexo);
 
-
+        // Crear Adapter
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.opciones_sexo, android.R.layout.simple_spinner_item);
-
+        // Diseño usado
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
+        // Aplicamos adaptador a elemento / Spinner "sexo"
         spSexo.setAdapter(adapter);
 
         findViewById(R.id.rj_button_registrar_adoptante).setOnClickListener(v -> registrarUsuario());
