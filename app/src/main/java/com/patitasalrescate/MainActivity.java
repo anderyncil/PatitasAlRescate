@@ -49,15 +49,6 @@ public class MainActivity extends AppCompatActivity {
                 .setStartDelay(500)
                 .start();
 
-
-
-
-
-
-
-
-
-
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splash_screen), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

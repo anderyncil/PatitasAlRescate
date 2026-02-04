@@ -2,9 +2,66 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/ingresar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Controllers.ActividadIngresar">
+
+
+    <ImageView
+        android:id="@+id/rj_iniciologo_small"
+        android:layout_width="205dp"
+        android:layout_height="190dp"
+        android:layout_marginTop="60dp"
+        android:src="@drawable/rj_logo_patitas"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/text_bienvenida"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/chewy"
+        android:text="¡Hola! ¿Qué quieres hacer hoy?"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rj_iniciologo_small" />
+
+    <Button
+        android:id="@+id/rj_button_iniciosesion"
+        android:layout_width="287dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="65dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="59dp"
+        android:fontFamily="@font/chewy"
+        android:text="Ya tengo cuenta 🐕"
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        app:cornerRadius="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_bienvenida" />
+
+    <Button
+        android:id="@+id/rj_button_registrarse"
+        android:layout_width="289dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="66dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="56dp"
+        android:fontFamily="@font/chewy"
+        android:text="Soy nuevo  🐶"
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        app:cornerRadius="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rj_button_iniciosesion" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
