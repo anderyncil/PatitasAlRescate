@@ -1,4 +1,6 @@
 package com.patitasalrescate.ui;
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -15,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.patitasalrescate.Controllers.ActividadAdopcion;
 import com.patitasalrescate.Controllers.ActividadAdopcion;
+import com.patitasalrescate.Controllers.ActividadPerfilMascota;
+import com.patitasalrescate.Controllers.ActividadRegistrarMascota;
 import com.patitasalrescate.R;
 import com.patitasalrescate.model.Mascota;
 
@@ -24,7 +28,6 @@ public class AdaptadorMascotas extends RecyclerView.Adapter<AdaptadorMascotas.Ma
 
     private List<Mascota> listaMascotas;
     private boolean esModoRefugio; // TRUE = Ver Editar, FALSE = Ver Adoptar
-
     // Constructor: Recibe la lista y el rol (Refugio o Adoptante)
     public AdaptadorMascotas(List<Mascota> lista, boolean esModoRefugio) {
         this.listaMascotas = lista;
@@ -83,9 +86,13 @@ public class AdaptadorMascotas extends RecyclerView.Adapter<AdaptadorMascotas.Ma
             holder.btnAdoptar.setVisibility(View.GONE);
             holder.btnEditar.setVisibility(View.VISIBLE);
 
-            holder.btnEditar.setOnClickListener(v -> {
-                Toast.makeText(context, "Editar: " + mascota.getNombre(), Toast.LENGTH_SHORT).show();
-            });
+            Intent intent = new Intent(context, ActividadPerfilMascota.class);
+
+            intent.putExtra("id_mascota_key", mascota.getIdMascota());
+
+            intent.putExtra("es_modo_edicion", true);
+
+            context.startActivity(intent);
 
         } else {
             holder.btnEditar.setVisibility(View.GONE);

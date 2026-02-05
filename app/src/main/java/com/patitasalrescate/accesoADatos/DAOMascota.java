@@ -95,4 +95,37 @@ public class DAOMascota {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.delete("mascotas", "id_mascota = ?", new String[]{String.valueOf(idMascota)});
     }
+    public Mascota obtenerPorId(int id) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Mascota masc = null;
+
+        // Buscamos solo la mascota que coincida con el ID
+        Cursor cursor = db.query("mascotas", null, "id_mascota = ?",
+                new String[]{String.valueOf(id)}, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            masc = new Mascota();
+            masc.setIdMascota(cursor.getInt(cursor.getColumnIndexOrThrow("id_mascota")));
+            masc.setIdRefugio(cursor.getInt(cursor.getColumnIndexOrThrow("id_refugio")));
+            masc.setNombre(cursor.getString(cursor.getColumnIndexOrThrow("nombre")));
+            masc.setEspecie(cursor.getString(cursor.getColumnIndexOrThrow("especie")));
+            masc.setRaza(cursor.getString(cursor.getColumnIndexOrThrow("raza")));
+            masc.setEdad(cursor.getInt(cursor.getColumnIndexOrThrow("edad")));
+            masc.setTemperamento(cursor.getString(cursor.getColumnIndexOrThrow("temperamento")));
+            masc.setHistoria(cursor.getString(cursor.getColumnIndexOrThrow("historia")));
+
+            // Fotos
+            List<String> fotosList = new ArrayList<>();
+            String fotosStr = cursor.getString(cursor.getColumnIndexOrThrow("fotos"));
+            if (fotosStr != null && !fotosStr.isEmpty()) {
+                fotosList = Arrays.asList(fotosStr.split(","));
+            }
+            masc.setFotos(fotosList);
+
+            masc.setEsAdoptado(cursor.getInt(cursor.getColumnIndexOrThrow("es_adoptado")) == 1);
+            masc.setLastSync(cursor.getLong(cursor.getColumnIndexOrThrow("last_sync")));
+        }
+        cursor.close();
+        return masc;
+    }
 }
