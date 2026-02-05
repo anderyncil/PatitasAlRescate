@@ -104,82 +104,88 @@ public class ActividadRegistrarOrganizacion extends AppCompatActivity {
     }
 
     private void procesarRegistro() {
-        String nombre = txtNombre.getText().toString().trim();
-        String correo = txtCorreo.getText().toString().trim();
-        String password = txtPassword.getText().toString().trim();
-
-        if (nombre.isEmpty() || correo.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Complete los campos obligatorios", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Subiendo foto y registrando...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
-        new Thread(() -> {
-            String urlFinalFoto = "https://picsum.photos/200"; // URL por defecto si no sube nada
-
-            // 1. Si el usuario seleccionó foto, intentamos subirla
-            if (uriImagenSeleccionada != null) {
-                try {
-                    // Convertimos la URI a Bytes
-                    byte[] imagenBytes = getBytesFromUri(uriImagenSeleccionada);
-
-                    if (imagenBytes != null) {
-                        // Nombre único para el archivo: "refugio_12345.jpg"
-                        String nombreArchivo = "refugio_" + System.currentTimeMillis() + ".jpg";
-
-                        // LLAMADA A SUPABASE (Toma tiempo)
-                        String urlSubida = supabaseService.subirFoto(imagenBytes, nombreArchivo);
-
-                        if (urlSubida != null) {
-                            urlFinalFoto = urlSubida; // ¡Éxito! Tenemos URL de internet
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.e("Registro", "Error leyendo imagen: " + e.getMessage());
-                }
-            }
-
-            // 2. Preparamos los datos para SQLite
-            String finalUrl = urlFinalFoto; // Variable final para usar en lambda
-
-            // Volvemos al Hilo Principal (UI Thread) para guardar y cerrar
-            runOnUiThread(() -> {
-                guardarEnBaseDeDatos(finalUrl);
-                progressDialog.dismiss();
-            });
-
-        }).start();
-    }
-
-    private void guardarEnBaseDeDatos(String urlFoto) {
+        // Recogemos los datos de la pantalla
         String nombre = txtNombre.getText().toString().trim();
         String direccion = txtDireccion.getText().toString().trim();
         String telefono = txtTelefono.getText().toString().trim();
         String correo = txtCorreo.getText().toString().trim();
         String password = txtPassword.getText().toString().trim();
 
-        String idUnico = UUID.randomUUID().toString();
-        String passwordEncriptada = SeguridadUtils.encriptar(password);
+        // Validamos
+        if (nombre.isEmpty() || correo.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Complete los campos obligatorios", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        Refugio nuevoRefugio = new Refugio(0,
-                nombre, direccion, 0.0, 0.0,
-                correo, passwordEncriptada, telefono,
-                urlFoto, // Aquí va la URL que vino de Supabase (o la default)
-                System.currentTimeMillis()
-        );
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Registrando en la nube y localmente...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
+        // HILO EN SEGUNDO PLANO (Network Thread)
+        new Thread(() -> {
+            String urlFinalFoto = "https://picsum.photos/200";
+
+            // 1. SUBIR FOTO A STORAGE
+            if (uriImagenSeleccionada != null) {
+                try {
+                    byte[] imagenBytes = getBytesFromUri(uriImagenSeleccionada);
+                    if (imagenBytes != null) {
+                        String nombreArchivo = "refugio_" + System.currentTimeMillis() + ".jpg";
+                        String urlSubida = supabaseService.subirFoto(imagenBytes, nombreArchivo);
+                        if (urlSubida != null) {
+                            urlFinalFoto = urlSubida;
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // 2. CREAR OBJETO REFUGIO
+            // Encriptamos contraseña
+            String passwordEncriptada = SeguridadUtils.encriptar(password);
+
+            Refugio nuevoRefugio = new Refugio(
+                    0, // ID 0 para que SQLite genere el suyo y Supabase el suyo
+                    nombre, direccion, 0.0, 0.0,
+                    correo, passwordEncriptada, telefono,
+                    urlFinalFoto,
+                    System.currentTimeMillis()
+            );
+
+            // 3. GUARDAR EN LA NUBE (SUPABASE)
+            // Hacemos esto AQUÍ porque estamos en el hilo de fondo
+            try {
+                boolean exitoNube = supabaseService.insertarRefugio(nuevoRefugio);
+                if (exitoNube) {
+                    Log.d("Registro", "¡Refugio subido a Supabase correctamente!");
+                } else {
+                    Log.e("Registro", "Fallo al subir a Supabase");
+                }
+            } catch (IOException e) {
+                Log.e("Registro", "Error de conexión: " + e.getMessage());
+            }
+
+            // 4. GUARDAR EN LOCAL (SQLite) Y ACTUALIZAR UI
+            // Pasamos el objeto ya creado al hilo principal
+            runOnUiThread(() -> {
+                guardarEnBaseDeDatosLocal(nuevoRefugio);
+                progressDialog.dismiss();
+            });
+
+        }).start();
+    }
+
+    // Este método ahora solo se encarga de SQLite y cerrar la pantalla
+    private void guardarEnBaseDeDatosLocal(Refugio nuevoRefugio) {
         long resultado = daoRefugio.insertar(nuevoRefugio);
 
         if (resultado != -1) {
             Toast.makeText(this, "¡Registro completado!", Toast.LENGTH_LONG).show();
             finish();
         } else {
-            Toast.makeText(this, "Error al guardar en BD local", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Guardado en nube OK, pero error en local", Toast.LENGTH_SHORT).show();
         }
     }
 

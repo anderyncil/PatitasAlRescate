@@ -94,5 +94,27 @@ public class SupabaseService {
         return null; // Retorna null si falló
     }
 
-    // Puedes agregar más: update, delete, getRefugios, etc.
+
+    // NUEVO: Método para subir el Refugio a la tabla "refugios" en Supabase
+    public boolean insertarRefugio(Refugio refugio) throws IOException {
+        // 1. Convertimos el objeto Refugio a texto JSON
+        String json = gson.toJson(refugio);
+
+        // 2. Preparamos el paquete para enviar
+        RequestBody body = RequestBody.create(json, MediaType.get("application/json; charset=utf-8"));
+
+        // 3. Enviamos a la tabla "refugios" (Asegúrate que la tabla en Supabase se llame así)
+        Request request = baseRequest("refugios")
+                .post(body)
+                .build();
+
+        // 4. Ejecutamos y verificamos si salió bien
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                android.util.Log.e("SupabaseRefugio", "Error al subir refugio: " + response.code());
+                return false;
+            }
+            return true;
+        }
+    }
 }
