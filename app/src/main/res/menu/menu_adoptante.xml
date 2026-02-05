@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item
+        android:id="@+id/itemInicioAdoptante"
+        android:icon="@android:drawable/ic_menu_view"
+        android:title="Inicio" />
+
+    <item
+        android:id="@+id/itemListarMascotasAdoptante"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="Mascotas" />
+
+    <item
+        android:id="@+id/itemFavoritosAdoptante"
+        android:icon="@android:drawable/btn_star_big_on"
+        android:title="Favoritos" />
+
+    <item
+        android:id="@+id/itemSalirAdoptante"
+        android:icon="@android:drawable/ic_lock_power_off"
+        android:title="Salir" />
 </menu>

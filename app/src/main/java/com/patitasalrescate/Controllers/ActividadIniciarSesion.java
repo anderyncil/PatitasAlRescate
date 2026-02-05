@@ -81,9 +81,10 @@ public class ActividadIniciarSesion extends AppCompatActivity {
         Intent intent;
         if(tipo.equals("Adoptante")){
             intent = new Intent(this, ActividadInicioAdoptante.class);
-
+            intent.putExtra("nombre_adoptante_key", nombre);
         }else{
             intent = new Intent(this, ActividadInicioRefugio.class);
+            intent.putExtra("nombre_refugio_key", nombre);
         }
         startActivity(intent);
         finish(); //cerramos login para que no regrese pantalla

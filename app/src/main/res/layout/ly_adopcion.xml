@@ -1,10 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Controllers.ActividadAdopcion">
+    android:padding="16dp"
+    android:background="@color/blanco">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="git remote -v&#xA;" />
+
+    <TextView
+        android:id="@+id/txtTituloAdopcion"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Confirmar adopción"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/txtDetalleAdopcion"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Detalle..."
+        android:textSize="16sp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/txtTituloAdopcion"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/btnConfirmarAdopcion"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Confirmar adopción ✅"
+        android:layout_marginTop="18dp"
+        app:layout_constraintTop_toBottomOf="@id/txtDetalleAdopcion"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/btnContactarWhatsapp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Contactar por WhatsApp 💬"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/btnConfirmarAdopcion"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

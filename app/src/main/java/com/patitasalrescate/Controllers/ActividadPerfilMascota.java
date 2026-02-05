@@ -2,13 +2,13 @@ package com.patitasalrescate.Controllers;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.patitasalrescate.R;
@@ -27,7 +27,8 @@ public class ActividadPerfilMascota extends AppCompatActivity {
     // Datos
     private DAOMascota daoMascota;
     private Mascota mascotaActual;
-    private int idMascota;
+
+    private int idMascota = -1;
     private boolean esModoEdicion = false; // TRUE = Refugio, FALSE = Adoptante
 
     @Override
@@ -35,24 +36,24 @@ public class ActividadPerfilMascota extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ly_perfil_mascota);
 
-        // 1. Inicializar DAO y Vistas
+        // 1) Inicializar
         daoMascota = new DAOMascota(this);
         initViews();
 
-        // 2. Recibir Datos del Intent
-        if (getIntent().hasExtra("id_mascota_key")) {
-            idMascota = getIntent().getIntExtra("id_mascota_key", -1);
+        // 2) Recibir datos del Intent (si no llega, queda -1)
+        idMascota = getIntent().getIntExtra("id_mascota_key", -1);
+        esModoEdicion = getIntent().getBooleanExtra("es_modo_edicion", false);
+
+        if (idMascota == -1) {
+            Toast.makeText(this, "Error: no llegó el ID de la mascota", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
-        // Aquí decidimos el rol: ¿Viene del Refugio (botón editar)?
-        if (getIntent().hasExtra("es_modo_edicion")) {
-            esModoEdicion = getIntent().getBooleanExtra("es_modo_edicion", false);
-        }
-
-        // 3. Cargar Datos de la BD
+        // 3) Cargar datos de BD
         cargarDatosMascota();
 
-        // 4. Configurar la Interfaz según el Rol
+        // 4) Configurar interfaz según rol
         configurarModoVisual();
     }
 
@@ -63,56 +64,80 @@ public class ActividadPerfilMascota extends AppCompatActivity {
         txtEdad = findViewById(R.id.txt_edit_edad);
         txtTemperamento = findViewById(R.id.txt_edit_temperamento);
         txtHistoria = findViewById(R.id.txt_edit_historia);
+
         imgFoto = findViewById(R.id.img_detalle_mascota);
         btnAccion = findViewById(R.id.btn_accion_principal);
     }
 
     private void cargarDatosMascota() {
-        if (idMascota != -1) {
-            // Usamos el método obtenerPorId que agregaste al DAO
-            mascotaActual = daoMascota.obtenerPorId(idMascota);
+        mascotaActual = daoMascota.obtenerPorId(idMascota);
 
-            if (mascotaActual != null) {
-                // Llenamos los campos
-                txtNombre.setText(mascotaActual.getNombre());
-                txtEspecie.setText(mascotaActual.getEspecie());
-                txtRaza.setText(mascotaActual.getRaza());
-                txtEdad.setText(String.valueOf(mascotaActual.getEdad()));
-                txtTemperamento.setText(mascotaActual.getTemperamento());
-                txtHistoria.setText(mascotaActual.getHistoria());
-
-                // Cargar Foto
-                List<String> fotos = mascotaActual.getFotos();
-                if (fotos != null && !fotos.isEmpty()) {
-                    Glide.with(this).load(fotos.get(0)).centerCrop().into(imgFoto);
-                }
-            } else {
-                Toast.makeText(this, "Error: Mascota no encontrada", Toast.LENGTH_SHORT).show();
-                finish();
-            }
+        if (mascotaActual == null) {
+            Toast.makeText(this, "Error: Mascota no encontrada", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
+
+        // Llenar campos
+        txtNombre.setText(valorSeguro(mascotaActual.getNombre()));
+        txtEspecie.setText(valorSeguro(mascotaActual.getEspecie()));
+        txtRaza.setText(valorSeguro(mascotaActual.getRaza()));
+        txtEdad.setText(String.valueOf(mascotaActual.getEdad()));
+        txtTemperamento.setText(valorSeguro(mascotaActual.getTemperamento()));
+        txtHistoria.setText(valorSeguro(mascotaActual.getHistoria()));
+
+        // Foto
+        List<String> fotos = mascotaActual.getFotos();
+        if (fotos != null && !fotos.isEmpty() && fotos.get(0) != null && !fotos.get(0).trim().isEmpty()) {
+            Glide.with(this)
+                    .load(fotos.get(0).trim())
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .error(R.drawable.ic_launcher_foreground)
+                    .centerCrop()
+                    .into(imgFoto);
+        } else {
+            imgFoto.setImageResource(R.drawable.ic_launcher_foreground);
+        }
+    }
+
+    private String valorSeguro(String s) {
+        return (s == null) ? "" : s;
     }
 
     private void configurarModoVisual() {
         if (esModoEdicion) {
             // --- MODO REFUGIO (EDITAR) ---
             habilitarCampos(true);
+
+            btnAccion.setEnabled(true);
+            btnAccion.setAlpha(1f);
             btnAccion.setText("GUARDAR CAMBIOS");
-            btnAccion.setBackgroundColor(getResources().getColor(android.R.color.holo_orange_dark)); // Color naranja para editar
+            btnAccion.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_orange_dark));
 
             btnAccion.setOnClickListener(v -> guardarCambios());
 
         } else {
-            // --- MODO ADOPTANTE (VER Y ADOPTAR) ---
-            habilitarCampos(false); // Bloqueamos escritura
+            // --- MODO ADOPTANTE (VER + ADOPTAR) ---
+            habilitarCampos(false);
+
+            // ✅ VALIDACIÓN: si ya está adoptado, bloquear el botón
+            if (mascotaActual != null && mascotaActual.isEsAdoptado()) {
+                btnAccion.setText("YA FUE ADOPTADO ✅");
+                btnAccion.setEnabled(false);
+                btnAccion.setAlpha(0.6f);
+                btnAccion.setBackgroundColor(ContextCompat.getColor(this, android.R.color.darker_gray));
+                return;
+            }
+
+            btnAccion.setEnabled(true);
+            btnAccion.setAlpha(1f);
             btnAccion.setText("¡QUIERO ADOPTARLO! 🐾");
-            // Usamos el color primario o verde para acción positiva
+            btnAccion.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
 
             btnAccion.setOnClickListener(v -> irAAdoptar());
         }
     }
 
-    // Método mágico para bloquear/desbloquear escritura
     private void habilitarCampos(boolean habilitar) {
         txtNombre.setEnabled(habilitar);
         txtEspecie.setEnabled(habilitar);
@@ -121,40 +146,53 @@ public class ActividadPerfilMascota extends AppCompatActivity {
         txtTemperamento.setEnabled(habilitar);
         txtHistoria.setEnabled(habilitar);
 
-        // Opcional: Cambiar el estilo visual si están deshabilitados
         if (!habilitar) {
-            txtNombre.setTextColor(getResources().getColor(android.R.color.black));
-            // ... repetir para otros si quieres que se vea bien negro y no gris
+            int color = ContextCompat.getColor(this, android.R.color.black);
+            txtNombre.setTextColor(color);
+            txtEspecie.setTextColor(color);
+            txtRaza.setTextColor(color);
+            txtEdad.setTextColor(color);
+            txtTemperamento.setTextColor(color);
+            txtHistoria.setTextColor(color);
         }
     }
 
     private void guardarCambios() {
-        // 1. Recoger datos modificados
-        mascotaActual.setNombre(txtNombre.getText().toString());
-        mascotaActual.setEspecie(txtEspecie.getText().toString());
-        mascotaActual.setRaza(txtRaza.getText().toString());
-        mascotaActual.setTemperamento(txtTemperamento.getText().toString());
-        mascotaActual.setHistoria(txtHistoria.getText().toString());
+        if (mascotaActual == null) return;
+
+        String nombre = txtNombre.getText().toString().trim();
+        String especie = txtEspecie.getText().toString().trim();
+
+        if (nombre.isEmpty() || especie.isEmpty()) {
+            Toast.makeText(this, "Nombre y especie son obligatorios", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mascotaActual.setNombre(nombre);
+        mascotaActual.setEspecie(especie);
+        mascotaActual.setRaza(txtRaza.getText().toString().trim());
+        mascotaActual.setTemperamento(txtTemperamento.getText().toString().trim());
+        mascotaActual.setHistoria(txtHistoria.getText().toString().trim());
 
         try {
-            mascotaActual.setEdad(Integer.parseInt(txtEdad.getText().toString()));
+            mascotaActual.setEdad(Integer.parseInt(txtEdad.getText().toString().trim()));
         } catch (NumberFormatException e) {
             mascotaActual.setEdad(0);
         }
 
-        // 2. Actualizar en BD
         int filas = daoMascota.actualizar(mascotaActual);
 
         if (filas > 0) {
-            Toast.makeText(this, "Cambios guardados correctamente", Toast.LENGTH_SHORT).show();
-            finish(); // Volvemos a la lista
+            Toast.makeText(this, "Cambios guardados correctamente ✅", Toast.LENGTH_SHORT).show();
+            finish();
         } else {
-            Toast.makeText(this, "Error al guardar", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error al guardar ❌", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void irAAdoptar() {
-        // Redirigir a la pantalla de proceso de adopción
+        if (mascotaActual == null) return;
+
         Intent intent = new Intent(this, ActividadAdopcion.class);
         intent.putExtra("id_mascota_key", mascotaActual.getIdMascota());
         intent.putExtra("nombre_mascota_key", mascotaActual.getNombre());
