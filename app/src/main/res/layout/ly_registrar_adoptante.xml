@@ -16,7 +16,7 @@
         android:background="@color/marronPrimario"
         app:title="Únete como adoptante"
         app:titleTextColor="@color/blanco"
-        app:navigationIcon="@drawable/outline_inicio_refugio_24"
+        app:navigationIcon="@drawable/rj_inicio_refugio_24"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
