@@ -1,14 +1,26 @@
 package com.patitasalrescate.model;
+import com.google.gson.annotations.SerializedName;
 
 public class Adoptante {
+    @SerializedName("id_adoptante") // Coincide con el diagrama de Supabase
     private int idAdoptante;
+
     private String nombre;
     private String correo;
-    private String password;
+
+    // El password no se suele enviar a la tabla pública de Supabase por seguridad
+    private transient String password;
+
+    @SerializedName("num_celular")
     private String numCelular;
+
     private int edad;
     private String sexo;
+
+    @SerializedName("last_sync")
     private long lastSync;
+
+    // ... (Mantén los constructores, getters y setters de tu amigo igual)
 
     public Adoptante() {}
 

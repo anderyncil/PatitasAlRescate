@@ -1,14 +1,29 @@
 package com.patitasalrescate.accesoADatos;
 
+import com.patitasalrescate.model.Adoptante;
 import com.patitasalrescate.model.Mascota;
 import com.patitasalrescate.model.Refugio;
 import com.patitasalrescate.utils.SeguridadUtils;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class ApiSimulada {
+
+    public List<Adoptante> getAdoptantesDesdeApi() {
+        List<Adoptante> adoptantes = new ArrayList<>();
+        // Simulamos un adoptante de prueba
+        Adoptante prueba = new Adoptante();
+        prueba.setNombre("Usuario Prueba");
+        prueba.setCorreo("test@patitas.com");
+        // Usamos la encriptación para que el login lo reconozca
+        prueba.setPassword(SeguridadUtils.encriptar("clave123"));
+
+        adoptantes.add(prueba);
+        return adoptantes;
+    }
 
     public List<Refugio> getRefugiosDesdeApi() {
         List<Refugio> refugios = new ArrayList<>();

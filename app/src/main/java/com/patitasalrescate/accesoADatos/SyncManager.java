@@ -16,6 +16,10 @@ public class SyncManager {
         this.supabase = new SupabaseService();
     }
 
+
+
+
+
     // Sincronización completa (pull + push)
     public void sincronizarTodo() {
         new Thread(() -> {

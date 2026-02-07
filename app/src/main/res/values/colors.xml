@@ -9,4 +9,9 @@
     <color name="textoSecundario">#757575</color>
     <color name="divisor">#BDBDBD</color>
     <color name="negro">#000000</color>
+
+    <color name="fondo_crema">#F5F5DC</color>
+    <color name="verde_persona">#8FB2B0</color>
+    <color name="naranja_asociacion">#D48857</color>
+    <color name="texto_titulo">#0A312F</color>
 </resources>
