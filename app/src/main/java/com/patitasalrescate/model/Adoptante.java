@@ -1,15 +1,16 @@
 package com.patitasalrescate.model;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Adoptante {
-    @SerializedName("id_adoptante") // Coincide con el diagrama de Supabase
-    private int idAdoptante;
+
+    @SerializedName("id_adoptante")
+    private String idAdoptante;
 
     private String nombre;
     private String correo;
 
-    // El password no se suele enviar a la tabla pública de Supabase por seguridad
-    private transient String password;
+    private transient String password;   // Ya lo tenías bien
 
     @SerializedName("num_celular")
     private String numCelular;
@@ -18,13 +19,12 @@ public class Adoptante {
     private String sexo;
 
     @SerializedName("last_sync")
-    private long lastSync;
-
-    // ... (Mantén los constructores, getters y setters de tu amigo igual)
+    private transient long lastSync;   // ← AGREGAR transient aquí
 
     public Adoptante() {}
 
-    public Adoptante(int idAdoptante, String nombre, String correo, String password, String numCelular, int edad, String sexo, long lastSync) {
+    public Adoptante(String idAdoptante, String nombre, String correo, String password,
+                     String numCelular, int edad, String sexo, long lastSync) {
         this.idAdoptante = idAdoptante;
         this.nombre = nombre;
         this.correo = correo;
@@ -35,17 +35,15 @@ public class Adoptante {
         this.lastSync = lastSync;
     }
 
-    // Getters y Setters
-    public int getIdAdoptante() { return idAdoptante; }
-    public void setIdAdoptante(int idAdoptante) { this.idAdoptante = idAdoptante; }
+    // Getters y Setters (sin cambios)
+    public String getIdAdoptante() { return idAdoptante; }
+    public void setIdAdoptante(String idAdoptante) { this.idAdoptante = idAdoptante; }
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
-
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-
     public String getNumCelular() { return numCelular; }
     public void setNumCelular(String numCelular) { this.numCelular = numCelular; }
     public int getEdad() { return edad; }

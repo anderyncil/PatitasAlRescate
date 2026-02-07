@@ -20,7 +20,7 @@ public class ActividadAdopcion extends AppCompatActivity {
     private DAOMascota daoMascota;
     private DAORefugio daoRefugio;
 
-    private int idMascota;
+    private String idMascota;  // ← String
     private Mascota mascota;
     private Refugio refugio;
 
@@ -32,8 +32,8 @@ public class ActividadAdopcion extends AppCompatActivity {
         daoMascota = new DAOMascota(this);
         daoRefugio = new DAORefugio(this);
 
-        idMascota = getIntent().getIntExtra("id_mascota_key", -1);
-        if (idMascota == -1) {
+        idMascota = getIntent().getStringExtra("id_mascota_key");  // ← getStringExtra
+        if (idMascota == null) {
             Toast.makeText(this, "Error: no llegó la mascota", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -46,7 +46,7 @@ public class ActividadAdopcion extends AppCompatActivity {
             return;
         }
 
-        refugio = daoRefugio.obtenerPorId(mascota.getIdRefugio()); // método nuevo (abajo te lo doy)
+        refugio = daoRefugio.obtenerPorId(mascota.getIdRefugio());
 
         TextView txtTitulo = findViewById(R.id.txtTituloAdopcion);
         TextView txtDetalle = findViewById(R.id.txtDetalleAdopcion);
@@ -57,7 +57,6 @@ public class ActividadAdopcion extends AppCompatActivity {
         txtDetalle.setText("Mascota: " + mascota.getNombre() + "\n"
                 + "Refugio: " + (refugio != null ? refugio.getNombre() : "No identificado"));
 
-        // Confirmar adopción (cambia estado)
         btnConfirmar.setOnClickListener(v -> {
             if (mascota.isEsAdoptado()) {
                 Toast.makeText(this, "Esta mascota ya está adoptada", Toast.LENGTH_SHORT).show();
@@ -72,7 +71,6 @@ public class ActividadAdopcion extends AppCompatActivity {
             }
         });
 
-        // Contactar por WhatsApp
         btnWhatsapp.setOnClickListener(v -> abrirWhatsapp());
     }
 
@@ -83,8 +81,6 @@ public class ActividadAdopcion extends AppCompatActivity {
         }
 
         String telefono = refugio.getNumCelular().trim();
-
-        // Normalizar: si no tiene +51, se lo agregamos (Perú)
         if (!telefono.startsWith("+")) {
             telefono = "+51" + telefono;
         }

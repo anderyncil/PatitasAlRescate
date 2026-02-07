@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class BDConstruir extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "patitas_db";
-    private static final int DB_VERSION = 3;  // Subimos versión por cambio en tabla mascotas
+    private static final int DB_VERSION = 5;  // Subimos versión por cambio de IDs a TEXT
 
     public BDConstruir(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -15,9 +15,9 @@ public class BDConstruir extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Tabla refugios
+        // Tabla refugios - ID como TEXT
         db.execSQL("CREATE TABLE refugios (" +
-                "id_refugio INTEGER PRIMARY KEY AUTOINCREMENT, " + // ID numérico
+                "id_refugio TEXT PRIMARY KEY, " +
                 "nombre TEXT NOT NULL, " +
                 "direccion TEXT, " +
                 "latitud REAL, " +
@@ -25,15 +25,15 @@ public class BDConstruir extends SQLiteOpenHelper {
                 "correo TEXT, " +
                 "password TEXT, " +
                 "num_celular TEXT, " +
-                "foto TEXT,"+
+                "foto TEXT, " +
                 "last_sync INTEGER" +
                 ")");
 
-        // Tabla mascotas (Agregado campo 'nombre')
+        // Tabla mascotas - ID como TEXT
         db.execSQL("CREATE TABLE mascotas (" +
-                "id_mascota INTEGER PRIMARY KEY AUTOINCREMENT, " + // ID numérico
-                "id_refugio INTEGER, " + // Relación numérica
-                "nombre TEXT, " +        // NUEVO CAMPO NOMBRE
+                "id_mascota TEXT PRIMARY KEY, " +
+                "id_refugio TEXT, " +
+                "nombre TEXT, " +
                 "especie TEXT NOT NULL, " +
                 "raza TEXT, " +
                 "edad INTEGER, " +
@@ -44,9 +44,9 @@ public class BDConstruir extends SQLiteOpenHelper {
                 "last_sync INTEGER" +
                 ")");
 
-        // Tabla adoptantes
+        // Tabla adoptantes - ID como TEXT
         db.execSQL("CREATE TABLE adoptantes (" +
-                "id_adoptante INTEGER PRIMARY KEY AUTOINCREMENT, " + // ID numérico
+                "id_adoptante TEXT PRIMARY KEY, " +
                 "nombre TEXT, " +
                 "correo TEXT, " +
                 "password TEXT, " +
@@ -56,10 +56,10 @@ public class BDConstruir extends SQLiteOpenHelper {
                 "last_sync INTEGER" +
                 ")");
 
-        // Tabla favoritos
+        // Tabla favoritos - IDs como TEXT
         db.execSQL("CREATE TABLE favoritos (" +
-                "id_adoptante INTEGER, " +
-                "id_mascota INTEGER, " +
+                "id_adoptante TEXT, " +
+                "id_mascota TEXT, " +
                 "last_sync INTEGER, " +
                 "PRIMARY KEY (id_adoptante, id_mascota)" +
                 ")");

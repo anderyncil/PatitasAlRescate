@@ -22,7 +22,7 @@ import java.util.List;
 public class AdaptadorMascotas extends RecyclerView.Adapter<AdaptadorMascotas.MascotaViewHolder> {
 
     private final List<Mascota> listaMascotas;
-    private final boolean esModoRefugio; // TRUE = Refugio (editar), FALSE = Adoptante (adoptar)
+    private final boolean esModoRefugio;
 
     public AdaptadorMascotas(List<Mascota> lista, boolean esModoRefugio) {
         this.listaMascotas = lista;
@@ -42,24 +42,18 @@ public class AdaptadorMascotas extends RecyclerView.Adapter<AdaptadorMascotas.Ma
         Mascota mascota = listaMascotas.get(position);
         Context context = holder.itemView.getContext();
 
-        // Nombre (si está vacío, fallback)
         String nombre = (mascota.getNombre() != null && !mascota.getNombre().trim().isEmpty())
                 ? mascota.getNombre()
                 : (mascota.getEspecie() + " #" + mascota.getIdMascota());
+
         holder.txtNombre.setText(nombre);
-
-        // Raza - Edad
         holder.txtRaza.setText(mascota.getRaza() + " - " + mascota.getEdad() + " meses");
-
-        // Estado: si está adoptado lo mostramos
         holder.txtEstado.setText(mascota.isEsAdoptado() ? "ADOPTADO ✅" : mascota.getTemperamento());
 
-        // Foto
         List<String> fotos = mascota.getFotos();
         if (fotos != null && !fotos.isEmpty() && fotos.get(0) != null && !fotos.get(0).trim().isEmpty()) {
-            String url = fotos.get(0).trim();
             Glide.with(context)
-                    .load(url)
+                    .load(fotos.get(0).trim())
                     .placeholder(R.drawable.ic_launcher_foreground)
                     .error(R.drawable.ic_launcher_foreground)
                     .centerCrop()
@@ -68,30 +62,26 @@ public class AdaptadorMascotas extends RecyclerView.Adapter<AdaptadorMascotas.Ma
             holder.imgFoto.setImageResource(R.drawable.ic_launcher_foreground);
         }
 
-        // Botones según rol
         holder.btnEditar.setVisibility(esModoRefugio ? View.VISIBLE : View.GONE);
         holder.btnAdoptar.setVisibility(esModoRefugio ? View.GONE : View.VISIBLE);
 
-        // Click en toda la tarjeta -> abre PERFIL (según rol)
         holder.itemView.setOnClickListener(v ->
                 abrirPerfil(context, mascota.getIdMascota(), esModoRefugio)
         );
 
-        // Click en editar -> PERFIL en modo edición
         holder.btnEditar.setOnClickListener(v ->
                 abrirPerfil(context, mascota.getIdMascota(), true)
         );
 
-        // Click en adoptar -> PERFIL en modo adoptante (el botón adoptar sale ahí)
         holder.btnAdoptar.setOnClickListener(v ->
                 abrirPerfil(context, mascota.getIdMascota(), false)
         );
     }
 
-    private void abrirPerfil(Context context, int idMascota, boolean modoEdicion) {
+    private void abrirPerfil(Context context, String idMascota, boolean modoEdicion) {
         Intent intent = new Intent(context, ActividadPerfilMascota.class);
         intent.putExtra("id_mascota_key", idMascota);
-        intent.putExtra("es_modo_edicion", modoEdicion); // TRUE refugio / FALSE adoptante
+        intent.putExtra("es_modo_edicion", modoEdicion);
         context.startActivity(intent);
     }
 

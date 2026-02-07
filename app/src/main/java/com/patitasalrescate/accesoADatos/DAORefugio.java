@@ -17,11 +17,10 @@ public class DAORefugio {
         dbHelper = new BDConstruir(context);
     }
 
-    // 1. INSERTAR
     public long insertar(Refugio refugio) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        // ID es autoincrement, NO se inserta manualmente
+        values.put("id_refugio", refugio.getIdRefugio());  // ← String UUID
         values.put("nombre", refugio.getNombre());
         values.put("direccion", refugio.getDireccion());
         values.put("latitud", refugio.getLatitud());
@@ -35,7 +34,6 @@ public class DAORefugio {
         return db.insert("refugios", null, values);
     }
 
-    // 2. LISTAR TODOS
     public List<Refugio> listarTodos() {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<Refugio> refugios = new ArrayList<>();
@@ -44,9 +42,7 @@ public class DAORefugio {
         if (cursor.moveToFirst()) {
             do {
                 Refugio ref = new Refugio();
-                // IMPORTANTE: Leer el ID como int
-                ref.setId_refugio(cursor.getInt(cursor.getColumnIndexOrThrow("id_refugio")));
-
+                ref.setIdRefugio(cursor.getString(cursor.getColumnIndexOrThrow("id_refugio")));  // ← getString
                 ref.setNombre(cursor.getString(cursor.getColumnIndexOrThrow("nombre")));
                 ref.setDireccion(cursor.getString(cursor.getColumnIndexOrThrow("direccion")));
                 ref.setLatitud(cursor.getDouble(cursor.getColumnIndexOrThrow("latitud")));
@@ -56,7 +52,6 @@ public class DAORefugio {
                 ref.setNumCelular(cursor.getString(cursor.getColumnIndexOrThrow("num_celular")));
                 ref.setFotoUrl(cursor.getString(cursor.getColumnIndexOrThrow("foto")));
                 ref.setLastSync(cursor.getLong(cursor.getColumnIndexOrThrow("last_sync")));
-
                 refugios.add(ref);
             } while (cursor.moveToNext());
         }
@@ -64,7 +59,6 @@ public class DAORefugio {
         return refugios;
     }
 
-    // 3. LOGIN
     public Refugio login(String correo, String passwordEncriptada) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = db.query("refugios", null, "correo = ? AND password = ?",
@@ -72,12 +66,10 @@ public class DAORefugio {
 
         if (cursor.moveToFirst()) {
             Refugio ref = new Refugio();
-            // Leer ID como int
-            ref.setId_refugio(cursor.getInt(cursor.getColumnIndexOrThrow("id_refugio")));
+            ref.setIdRefugio(cursor.getString(cursor.getColumnIndexOrThrow("id_refugio")));  // ← String
             ref.setNombre(cursor.getString(cursor.getColumnIndexOrThrow("nombre")));
             ref.setCorreo(cursor.getString(cursor.getColumnIndexOrThrow("correo")));
             ref.setFotoUrl(cursor.getString(cursor.getColumnIndexOrThrow("foto")));
-
             cursor.close();
             return ref;
         }
@@ -85,35 +77,32 @@ public class DAORefugio {
         return null;
     }
 
-    // 4. ACTUALIZAR
     public int actualizar(Refugio refugio) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("nombre", refugio.getNombre());
         values.put("direccion", refugio.getDireccion());
-        values.put("num_celular", refugio.getNumCelular()); // Agregué celular por si acaso
-        values.put("foto", refugio.getFotoUrl()); // Agregué foto por si la cambian
+        values.put("num_celular", refugio.getNumCelular());
+        values.put("foto", refugio.getFotoUrl());
         values.put("last_sync", refugio.getLastSync());
 
         return db.update("refugios", values, "id_refugio = ?",
-                new String[]{String.valueOf(refugio.getId_refugio())});
+                new String[]{refugio.getIdRefugio()});  // ← String directo
     }
 
-
-    public void eliminar(int idRefugio) {
+    public void eliminar(String idRefugio) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete("refugios", "id_refugio = ?", new String[]{String.valueOf(idRefugio)});
+        db.delete("refugios", "id_refugio = ?", new String[]{idRefugio});
     }
-    public Refugio obtenerPorId(int idRefugio) {
+
+    public Refugio obtenerPorId(String idRefugio) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Refugio ref = null;
-
-        Cursor cursor = db.query("refugios", null, "id_refugio = ?",
-                new String[]{String.valueOf(idRefugio)}, null, null, null);
+        Cursor cursor = db.query("refugios", null, "id_refugio = ?", new String[]{idRefugio}, null, null, null);
 
         if (cursor.moveToFirst()) {
             ref = new Refugio();
-            ref.setId_refugio(cursor.getInt(cursor.getColumnIndexOrThrow("id_refugio")));
+            ref.setIdRefugio(cursor.getString(cursor.getColumnIndexOrThrow("id_refugio")));
             ref.setNombre(cursor.getString(cursor.getColumnIndexOrThrow("nombre")));
             ref.setDireccion(cursor.getString(cursor.getColumnIndexOrThrow("direccion")));
             ref.setLatitud(cursor.getDouble(cursor.getColumnIndexOrThrow("latitud")));
@@ -124,9 +113,7 @@ public class DAORefugio {
             ref.setFotoUrl(cursor.getString(cursor.getColumnIndexOrThrow("foto")));
             ref.setLastSync(cursor.getLong(cursor.getColumnIndexOrThrow("last_sync")));
         }
-
         cursor.close();
         return ref;
     }
-
 }

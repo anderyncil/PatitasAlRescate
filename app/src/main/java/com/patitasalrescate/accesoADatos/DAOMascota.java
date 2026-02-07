@@ -21,22 +21,18 @@ public class DAOMascota {
     public long insertar(Mascota mascota) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("nombre", mascota.getNombre());        // NUEVO
+        values.put("id_mascota", mascota.getIdMascota());  // ← String UUID
+        values.put("id_refugio", mascota.getIdRefugio());  // ← String
+        values.put("nombre", mascota.getNombre());
         values.put("especie", mascota.getEspecie());
         values.put("raza", mascota.getRaza());
         values.put("edad", mascota.getEdad());
         values.put("temperamento", mascota.getTemperamento());
         values.put("historia", mascota.getHistoria());
-
-        // Convertir lista de fotos a String separado por comas
-        if (mascota.getFotos() != null && !mascota.getFotos().isEmpty()) {
-            values.put("fotos", String.join(",", mascota.getFotos()));
-        } else {
-            values.put("fotos", "");
-        }
-
+        values.put("fotos", String.join(",", mascota.getFotos()));
         values.put("es_adoptado", mascota.isEsAdoptado() ? 1 : 0);
         values.put("last_sync", mascota.getLastSync());
+
         return db.insert("mascotas", null, values);
     }
 
@@ -48,17 +44,15 @@ public class DAOMascota {
         if (cursor.moveToFirst()) {
             do {
                 Mascota masc = new Mascota();
-                // Ahora leemos ID como INT
-                masc.setIdMascota(cursor.getInt(cursor.getColumnIndexOrThrow("id_mascota")));
-                masc.setIdRefugio(cursor.getInt(cursor.getColumnIndexOrThrow("id_refugio")));
-                masc.setNombre(cursor.getString(cursor.getColumnIndexOrThrow("nombre"))); // NUEVO
+                masc.setIdMascota(cursor.getString(cursor.getColumnIndexOrThrow("id_mascota")));  // ← String
+                masc.setIdRefugio(cursor.getString(cursor.getColumnIndexOrThrow("id_refugio")));  // ← String
+                masc.setNombre(cursor.getString(cursor.getColumnIndexOrThrow("nombre")));
                 masc.setEspecie(cursor.getString(cursor.getColumnIndexOrThrow("especie")));
                 masc.setRaza(cursor.getString(cursor.getColumnIndexOrThrow("raza")));
                 masc.setEdad(cursor.getInt(cursor.getColumnIndexOrThrow("edad")));
                 masc.setTemperamento(cursor.getString(cursor.getColumnIndexOrThrow("temperamento")));
                 masc.setHistoria(cursor.getString(cursor.getColumnIndexOrThrow("historia")));
 
-                // Manejo de Fotos
                 List<String> fotosList = new ArrayList<>();
                 String fotosStr = cursor.getString(cursor.getColumnIndexOrThrow("fotos"));
                 if (fotosStr != null && !fotosStr.isEmpty()) {
@@ -78,7 +72,7 @@ public class DAOMascota {
     public int actualizar(Mascota mascota) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("nombre", mascota.getNombre()); // NUEVO
+        values.put("nombre", mascota.getNombre());
         values.put("especie", mascota.getEspecie());
         values.put("raza", mascota.getRaza());
         values.put("edad", mascota.getEdad());
@@ -87,26 +81,24 @@ public class DAOMascota {
         values.put("es_adoptado", mascota.isEsAdoptado() ? 1 : 0);
         values.put("last_sync", mascota.getLastSync());
 
-        // Actualizamos buscando por ID entero
-        return db.update("mascotas", values, "id_mascota = ?", new String[]{String.valueOf(mascota.getIdMascota())});
+        return db.update("mascotas", values, "id_mascota = ?",
+                new String[]{mascota.getIdMascota()});  // ← String
     }
 
-    public void eliminar(int idMascota) { // Recibe int
+    public void eliminar(String idMascota) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete("mascotas", "id_mascota = ?", new String[]{String.valueOf(idMascota)});
+        db.delete("mascotas", "id_mascota = ?", new String[]{idMascota});
     }
-    public Mascota obtenerPorId(int id) {
+
+    public Mascota obtenerPorId(String idMascota) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Mascota masc = null;
-
-        // Buscamos solo la mascota que coincida con el ID
-        Cursor cursor = db.query("mascotas", null, "id_mascota = ?",
-                new String[]{String.valueOf(id)}, null, null, null);
+        Cursor cursor = db.query("mascotas", null, "id_mascota = ?", new String[]{idMascota}, null, null, null);
 
         if (cursor.moveToFirst()) {
             masc = new Mascota();
-            masc.setIdMascota(cursor.getInt(cursor.getColumnIndexOrThrow("id_mascota")));
-            masc.setIdRefugio(cursor.getInt(cursor.getColumnIndexOrThrow("id_refugio")));
+            masc.setIdMascota(cursor.getString(cursor.getColumnIndexOrThrow("id_mascota")));
+            masc.setIdRefugio(cursor.getString(cursor.getColumnIndexOrThrow("id_refugio")));
             masc.setNombre(cursor.getString(cursor.getColumnIndexOrThrow("nombre")));
             masc.setEspecie(cursor.getString(cursor.getColumnIndexOrThrow("especie")));
             masc.setRaza(cursor.getString(cursor.getColumnIndexOrThrow("raza")));
@@ -114,7 +106,6 @@ public class DAOMascota {
             masc.setTemperamento(cursor.getString(cursor.getColumnIndexOrThrow("temperamento")));
             masc.setHistoria(cursor.getString(cursor.getColumnIndexOrThrow("historia")));
 
-            // Fotos
             List<String> fotosList = new ArrayList<>();
             String fotosStr = cursor.getString(cursor.getColumnIndexOrThrow("fotos"));
             if (fotosStr != null && !fotosStr.isEmpty()) {

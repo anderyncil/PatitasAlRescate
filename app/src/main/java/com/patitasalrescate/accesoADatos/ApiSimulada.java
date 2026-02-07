@@ -5,20 +5,20 @@ import com.patitasalrescate.model.Mascota;
 import com.patitasalrescate.model.Refugio;
 import com.patitasalrescate.utils.SeguridadUtils;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class ApiSimulada {
 
     public List<Adoptante> getAdoptantesDesdeApi() {
         List<Adoptante> adoptantes = new ArrayList<>();
-        // Simulamos un adoptante de prueba
+
         Adoptante prueba = new Adoptante();
+        prueba.setIdAdoptante(UUID.randomUUID().toString());
         prueba.setNombre("Usuario Prueba");
         prueba.setCorreo("test@patitas.com");
-        // Usamos la encriptación para que el login lo reconozca
         prueba.setPassword(SeguridadUtils.encriptar("clave123"));
 
         adoptantes.add(prueba);
@@ -29,7 +29,7 @@ public class ApiSimulada {
         List<Refugio> refugios = new ArrayList<>();
 
         refugios.add(new Refugio(
-                1,
+                UUID.randomUUID().toString(),  // ← String UUID
                 "Refugio Ejemplo",
                 "Dirección 1",
                 -12.0464,
@@ -53,24 +53,25 @@ public class ApiSimulada {
         );
 
         mascotas.add(new Mascota(
-                1,          // idMascota (int)
-                1,          // idRefugio (int)
-                "Perro",    // especie
-                "Labrador", // raza
-                24,         // edad
-                "Amigable", // temperamento
-                "Historia de rescate", // historia
-                fotos1,     // fotos
-                false,      // esAdoptado
-                "Bobby",    // NOMBRE (Posición correcta según tu modelo)
-                System.currentTimeMillis() // lastSync
+                UUID.randomUUID().toString(),  // idMascota String
+                UUID.randomUUID().toString(),  // idRefugio String
+                "Bobby",
+                "Perro",
+                "Labrador",
+                24,
+                "Amigable",
+                "Historia de rescate",
+                fotos1,
+                false,
+                System.currentTimeMillis()
         ));
 
         List<String> fotos2 = Arrays.asList("https://picsum.photos/200/302");
 
         mascotas.add(new Mascota(
-                2,
-                1,
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(),
+                "Michi",
                 "Gato",
                 "Persa",
                 36,
@@ -78,7 +79,6 @@ public class ApiSimulada {
                 "Rescatado de la calle",
                 fotos2,
                 false,
-                "Michi",    // NOMBRE
                 System.currentTimeMillis()
         ));
 

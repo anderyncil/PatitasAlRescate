@@ -10,26 +10,17 @@ public class Mascota {
 
     @SerializedName("id_mascota")
     @Expose
-    private int idMascota;
+    private String idMascota;
 
     @SerializedName("id_refugio")
     @Expose
-    private int idRefugio;
-
-    @Expose
-    private String especie;
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+    private String idRefugio;
 
     @Expose
     private String nombre;
 
+    @Expose
+    private String especie;
 
     @Expose
     private String raza;
@@ -44,23 +35,22 @@ public class Mascota {
     private String historia;
 
     @Expose
-    private List<String> fotos = new ArrayList<>();  // Lista para TEXT[] en Supabase
+    private List<String> fotos = new ArrayList<>();
 
     @SerializedName("es_adoptado")
     @Expose
     private boolean esAdoptado;
 
-    // Campos SOLO locales (no se envían a Supabase)
     private transient long lastSync;
-    private String createdAt;
-    private String updatedAt;
 
     public Mascota() {}
 
-    public Mascota(int idMascota, int idRefugio, String especie, String raza, int edad,
-                   String temperamento, String historia, List<String> fotos, boolean esAdoptado, String nombre, long lastSync) {
+    public Mascota(String idMascota, String idRefugio, String nombre, String especie, String raza,
+                   int edad, String temperamento, String historia, List<String> fotos,
+                   boolean esAdoptado, long lastSync) {
         this.idMascota = idMascota;
         this.idRefugio = idRefugio;
+        this.nombre = nombre;
         this.especie = especie;
         this.raza = raza;
         this.edad = edad;
@@ -69,15 +59,17 @@ public class Mascota {
         this.fotos = fotos != null ? fotos : new ArrayList<>();
         this.esAdoptado = esAdoptado;
         this.lastSync = lastSync;
-        this.nombre=nombre;
     }
 
-    // Getters y Setters completos
-    public int getIdMascota() { return idMascota; }
-    public void setIdMascota(int idMascota) { this.idMascota = idMascota; }
+    // Getters y Setters
+    public String getIdMascota() { return idMascota; }
+    public void setIdMascota(String idMascota) { this.idMascota = idMascota; }
 
-    public int getIdRefugio() { return idRefugio; }
-    public void setIdRefugio(int  idRefugio) { this.idRefugio = idRefugio; }
+    public String getIdRefugio() { return idRefugio; }
+    public void setIdRefugio(String idRefugio) { this.idRefugio = idRefugio; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
     public String getEspecie() { return especie; }
     public void setEspecie(String especie) { this.especie = especie; }
@@ -102,20 +94,4 @@ public class Mascota {
 
     public long getLastSync() { return lastSync; }
     public void setLastSync(long lastSync) { this.lastSync = lastSync; }
-
-    public String getCreatedAt() { return createdAt; }
-    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
-
-    public String getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
-
-    @Override
-    public String toString() {
-        return "Mascota{" +
-                "idMascota='" + idMascota + '\'' +
-                ", especie='" + especie + '\'' +
-                ", raza='" + raza + '\'' +
-                ", esAdoptado=" + esAdoptado +
-                '}';
-    }
 }

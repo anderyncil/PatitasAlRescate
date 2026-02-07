@@ -19,41 +19,35 @@ import java.util.List;
 
 public class ActividadPerfilMascota extends AppCompatActivity {
 
-    // Vistas
     private EditText txtNombre, txtEspecie, txtRaza, txtEdad, txtTemperamento, txtHistoria;
     private ImageView imgFoto;
     private Button btnAccion;
 
-    // Datos
     private DAOMascota daoMascota;
     private Mascota mascotaActual;
 
-    private int idMascota = -1;
-    private boolean esModoEdicion = false; // TRUE = Refugio, FALSE = Adoptante
+    private String idMascota;  // ← String UUID
+    private boolean esModoEdicion = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ly_perfil_mascota);
 
-        // 1) Inicializar
         daoMascota = new DAOMascota(this);
         initViews();
 
-        // 2) Recibir datos del Intent (si no llega, queda -1)
-        idMascota = getIntent().getIntExtra("id_mascota_key", -1);
+        // Recibir ID como String
+        idMascota = getIntent().getStringExtra("id_mascota_key");
         esModoEdicion = getIntent().getBooleanExtra("es_modo_edicion", false);
 
-        if (idMascota == -1) {
+        if (idMascota == null || idMascota.isEmpty()) {
             Toast.makeText(this, "Error: no llegó el ID de la mascota", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        // 3) Cargar datos de BD
         cargarDatosMascota();
-
-        // 4) Configurar interfaz según rol
         configurarModoVisual();
     }
 
@@ -70,7 +64,7 @@ public class ActividadPerfilMascota extends AppCompatActivity {
     }
 
     private void cargarDatosMascota() {
-        mascotaActual = daoMascota.obtenerPorId(idMascota);
+        mascotaActual = daoMascota.obtenerPorId(idMascota);  // ← String
 
         if (mascotaActual == null) {
             Toast.makeText(this, "Error: Mascota no encontrada", Toast.LENGTH_SHORT).show();
@@ -78,7 +72,6 @@ public class ActividadPerfilMascota extends AppCompatActivity {
             return;
         }
 
-        // Llenar campos
         txtNombre.setText(valorSeguro(mascotaActual.getNombre()));
         txtEspecie.setText(valorSeguro(mascotaActual.getEspecie()));
         txtRaza.setText(valorSeguro(mascotaActual.getRaza()));
@@ -86,7 +79,6 @@ public class ActividadPerfilMascota extends AppCompatActivity {
         txtTemperamento.setText(valorSeguro(mascotaActual.getTemperamento()));
         txtHistoria.setText(valorSeguro(mascotaActual.getHistoria()));
 
-        // Foto
         List<String> fotos = mascotaActual.getFotos();
         if (fotos != null && !fotos.isEmpty() && fotos.get(0) != null && !fotos.get(0).trim().isEmpty()) {
             Glide.with(this)
@@ -106,21 +98,15 @@ public class ActividadPerfilMascota extends AppCompatActivity {
 
     private void configurarModoVisual() {
         if (esModoEdicion) {
-            // --- MODO REFUGIO (EDITAR) ---
             habilitarCampos(true);
-
             btnAccion.setEnabled(true);
             btnAccion.setAlpha(1f);
             btnAccion.setText("GUARDAR CAMBIOS");
             btnAccion.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_orange_dark));
-
             btnAccion.setOnClickListener(v -> guardarCambios());
-
         } else {
-            // --- MODO ADOPTANTE (VER + ADOPTAR) ---
             habilitarCampos(false);
 
-            // ✅ VALIDACIÓN: si ya está adoptado, bloquear el botón
             if (mascotaActual != null && mascotaActual.isEsAdoptado()) {
                 btnAccion.setText("YA FUE ADOPTADO ✅");
                 btnAccion.setEnabled(false);
@@ -133,7 +119,6 @@ public class ActividadPerfilMascota extends AppCompatActivity {
             btnAccion.setAlpha(1f);
             btnAccion.setText("¡QUIERO ADOPTARLO! 🐾");
             btnAccion.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
-
             btnAccion.setOnClickListener(v -> irAAdoptar());
         }
     }
@@ -181,7 +166,6 @@ public class ActividadPerfilMascota extends AppCompatActivity {
         }
 
         int filas = daoMascota.actualizar(mascotaActual);
-
         if (filas > 0) {
             Toast.makeText(this, "Cambios guardados correctamente ✅", Toast.LENGTH_SHORT).show();
             finish();
@@ -194,7 +178,7 @@ public class ActividadPerfilMascota extends AppCompatActivity {
         if (mascotaActual == null) return;
 
         Intent intent = new Intent(this, ActividadAdopcion.class);
-        intent.putExtra("id_mascota_key", mascotaActual.getIdMascota());
+        intent.putExtra("id_mascota_key", mascotaActual.getIdMascota());  // ← String
         intent.putExtra("nombre_mascota_key", mascotaActual.getNombre());
         startActivity(intent);
     }

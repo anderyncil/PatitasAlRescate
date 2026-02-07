@@ -21,7 +21,7 @@ public class DAOAdoptante {
     public long insertar(Adoptante adoptante) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        // NO insertamos id_adoptante manualmente, es AUTOINCREMENT
+        values.put("id_adoptante", adoptante.getIdAdoptante());  // ← String UUID
         values.put("nombre", adoptante.getNombre());
         values.put("correo", adoptante.getCorreo());
         values.put("password", adoptante.getPassword());
@@ -41,9 +41,7 @@ public class DAOAdoptante {
         if (cursor.moveToFirst()) {
             do {
                 Adoptante adopt = new Adoptante();
-                // CORRECCIÓN: Leer el ID como INT
-                adopt.setIdAdoptante(cursor.getInt(cursor.getColumnIndexOrThrow("id_adoptante")));
-
+                adopt.setIdAdoptante(cursor.getString(cursor.getColumnIndexOrThrow("id_adoptante")));  // ← getString
                 adopt.setNombre(cursor.getString(cursor.getColumnIndexOrThrow("nombre")));
                 adopt.setCorreo(cursor.getString(cursor.getColumnIndexOrThrow("correo")));
                 adopt.setPassword(cursor.getString(cursor.getColumnIndexOrThrow("password")));
@@ -51,7 +49,6 @@ public class DAOAdoptante {
                 adopt.setEdad(cursor.getInt(cursor.getColumnIndexOrThrow("edad")));
                 adopt.setSexo(cursor.getString(cursor.getColumnIndexOrThrow("sexo")));
                 adopt.setLastSync(cursor.getLong(cursor.getColumnIndexOrThrow("last_sync")));
-
                 adoptantes.add(adopt);
             } while (cursor.moveToNext());
         }
@@ -59,7 +56,6 @@ public class DAOAdoptante {
         return adoptantes;
     }
 
-    // LOGIN ADOPTANTE
     public Adoptante login(String correo, String passwordEncriptada) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = db.query("adoptantes", null, "correo = ? AND password = ?",
@@ -67,11 +63,14 @@ public class DAOAdoptante {
 
         if (cursor.moveToFirst()) {
             Adoptante adopt = new Adoptante();
-            // CORRECCIÓN: Leer el ID como INT
-            adopt.setIdAdoptante(cursor.getInt(cursor.getColumnIndexOrThrow("id_adoptante")));
+            adopt.setIdAdoptante(cursor.getString(cursor.getColumnIndexOrThrow("id_adoptante")));  // ← String
             adopt.setNombre(cursor.getString(cursor.getColumnIndexOrThrow("nombre")));
             adopt.setCorreo(cursor.getString(cursor.getColumnIndexOrThrow("correo")));
-
+            adopt.setPassword(cursor.getString(cursor.getColumnIndexOrThrow("password")));
+            adopt.setNumCelular(cursor.getString(cursor.getColumnIndexOrThrow("num_celular")));
+            adopt.setEdad(cursor.getInt(cursor.getColumnIndexOrThrow("edad")));
+            adopt.setSexo(cursor.getString(cursor.getColumnIndexOrThrow("sexo")));
+            adopt.setLastSync(cursor.getLong(cursor.getColumnIndexOrThrow("last_sync")));
             cursor.close();
             return adopt;
         }
@@ -88,27 +87,19 @@ public class DAOAdoptante {
         values.put("sexo", adoptante.getSexo());
         values.put("last_sync", adoptante.getLastSync());
 
-        // CORRECCIÓN: Convertir el ID int a String para el array de argumentos
         return db.update("adoptantes", values, "id_adoptante = ?",
-                new String[]{String.valueOf(adoptante.getIdAdoptante())});
+                new String[]{adoptante.getIdAdoptante()});  // ← String directo
     }
 
-    // CORRECCIÓN: Recibir int como parámetro
-    public void eliminar(int idAdoptante) {
+    public void eliminar(String idAdoptante) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        // CORRECCIÓN: Convertir int a String
-        db.delete("adoptantes", "id_adoptante = ?", new String[]{String.valueOf(idAdoptante)});
+        db.delete("adoptantes", "id_adoptante = ?", new String[]{idAdoptante});
     }
-    //Validar que no haya correo repetidos
+
     public boolean existeCorreo(String correo) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        // Consultamos solo la columna id para que la búsqueda sea más rápida
-        Cursor cursor = db.query("adoptantes",
-                new String[]{"id_adoptante"},
-                "correo = ?",
-                new String[]{correo},
-                null, null, null);
-
+        Cursor cursor = db.query("adoptantes", new String[]{"id_adoptante"},
+                "correo = ?", new String[]{correo}, null, null, null);
         boolean existe = cursor.getCount() > 0;
         cursor.close();
         return existe;
