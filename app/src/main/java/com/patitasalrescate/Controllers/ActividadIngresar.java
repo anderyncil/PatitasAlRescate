@@ -30,21 +30,8 @@ public class ActividadIngresar extends AppCompatActivity {
         Button button_soyasociacion = findViewById(R.id.rj_button_soyasociacion);
 
         TextView text_yatengocuenta = findViewById(R.id.rj_click_inicia_sesion);
-
-        text_yatengocuenta.setPaintFlags(text_yatengocuenta.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
-
-        /*String text_completo = "¿Ya tienes cuenta? Inicia sesión aquí";
-        SpannableString spannable = new SpannableString(text_completo);
-        int inicio = text_completo.indexOf("Inicia sesión aquí");
-        int fin = inicio + "Inicia sesión aquí".length();
-
-        if(inicio != -1){
-            spannable.setSpan(new UnderlineSpan(), inicio, fin, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            spannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.naranja_asociacion)),inicio, fin, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-
-        text_yatengocuenta.setText(spannable);*/
-
+        //subrayado
+        text_yatengocuenta.setPaintFlags(/*text_yatengocuenta.getPaintFlags() | */android.graphics.Paint.UNDERLINE_TEXT_FLAG);
 
         button_soypersona.setOnClickListener(v->{
             Intent intent = new Intent(ActividadIngresar.this, ActividadRegistrarAdoptante.class);

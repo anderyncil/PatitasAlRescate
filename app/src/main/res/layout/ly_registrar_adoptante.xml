@@ -6,23 +6,25 @@
     android:id="@+id/registrar_adoptante"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/fondo_crema"
     tools:context=".Controllers.ActividadRegistrarAdoptante">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarRegistrarAdoptante"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/cardview_dark_background"
-        android:minHeight="?attr/actionBarSize"
-        app:title="Bienvenido - Únete como adoptante"
-        app:titleTextColor="@android:color/white"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/marronPrimario"
+        app:title="Únete como adoptante"
+        app:titleTextColor="@color/blanco"
+        app:navigationIcon="@drawable/outline_inicio_refugio_24"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbarRegistrarAdoptante"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbarRegistrarAdoptante">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,76 +32,145 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <EditText
-                android:id="@+id/rj_text_adopt_nombre"
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:hint="Tu nombre completo"
-                android:background="@android:drawable/edit_text"
-                android:inputType="textCapWords"
-                android:layout_marginBottom="12dp"/>
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/chewy"
+                android:text="Crea tu perfil"
+                android:textColor="@color/marronOscuro"
+                android:textSize="24sp"
+                android:layout_marginBottom="20dp"
+                android:gravity="center" />
 
-            <EditText
-                android:id="@+id/rj_text_adopt_telefono"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:hint="Teléfono"
-                android:background="@android:drawable/edit_text"
-                android:inputType="phone"
-                android:maxLength="9"
-                android:layout_marginBottom="12dp"/>
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="\t\t\t\tTu nombre completo"
+                app:boxStrokeColor="@color/marronPrimario"
+                app:hintTextColor="@color/marronPrimario"
+                app:startIconDrawable="@android:drawable/ic_menu_myplaces">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/rj_text_adopt_nombre"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="\t\t\t\tTeléfono"
+                app:boxStrokeColor="@color/marronPrimario"
+                app:startIconDrawable="@android:drawable/stat_sys_phone_call">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/rj_text_adopt_telefono"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:maxLength="9" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:baselineAligned="false"
                 android:layout_marginBottom="12dp">
 
-                <EditText
-                    android:id="@+id/rj_text_adopt_edad"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@android:drawable/edit_text"
                     android:hint="Edad"
-                    android:inputType="number"
-                    android:maxLength="3" />
+                    app:boxStrokeColor="@color/marronPrimario"
+                    app:hintTextColor="@color/marronPrimario">
 
-                <Spinner
-                    android:id="@+id/rj_combo_adopt_sexo"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/rj_text_adopt_edad"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:maxLength="3" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_marginStart="8dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@android:drawable/btn_dropdown" />
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sexo"
+                        android:textSize="12sp"
+                        android:textColor="@color/marronPrimario"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginBottom="-8dp"
+                        android:elevation="2dp"
+                        android:background="@color/fondo_crema"
+                        android:paddingHorizontal="4dp"/>
+
+                    <Spinner
+                        android:id="@+id/rj_combo_adopt_sexo"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/fondo_crema"
+                        android:paddingHorizontal="8dp" />
+                </LinearLayout>
             </LinearLayout>
 
-            <EditText
-                android:id="@+id/rj_text_adopt_correo"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:hint="Correo Electrónico"
-                android:background="@android:drawable/edit_text"
-                android:inputType="textEmailAddress"
-                android:layout_marginBottom="12dp"/>
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="\t\t\t\tCorreo"
+                app:boxStrokeColor="@color/marronPrimario"
+                app:startIconDrawable="@android:drawable/ic_dialog_email">
 
-            <EditText
-                android:id="@+id/rj_text_adopt_password"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/rj_text_adopt_correo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:hint="Contraseña"
-                android:background="@android:drawable/edit_text"
-                android:inputType="textPassword"
-                android:layout_marginBottom="24dp"/>
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="30dp"
+                android:hint="\t\t\t\tContraseña"
+                app:boxStrokeColor="@color/marronPrimario"
+                app:passwordToggleEnabled="true"
+                app:startIconDrawable="@android:drawable/ic_lock_idle_lock">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/rj_text_adopt_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Button
                 android:id="@+id/rj_button_registrar_adoptante"
-                android:layout_width="359dp"
-                android:layout_height="55dp"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:backgroundTint="@color/marronPrimario"
                 android:fontFamily="@font/chewy"
                 android:text="¡LISTO PARA ADOPTAR!"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp" />
+                android:textColor="@color/blanco"
+                android:textSize="18sp"
+                app:cornerRadius="30dp" />
 
         </LinearLayout>
     </ScrollView>
