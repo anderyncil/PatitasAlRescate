@@ -6,6 +6,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:background="@color/fondo_crema"
     tools:context=".Controllers.ActividadRegistrarOrganizacion">
 
@@ -14,7 +15,8 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/marronPrimario"
-        app:title="Registra el Albergue"
+        app:title="Registra tú Asociación 🐶"
+        android:fitsSystemWindows="true"
         app:titleTextColor="@color/blanco"
         app:navigationIcon="@drawable/rj_inicio_refugio_24"
         app:navigationIconTint="@color/blanco"
@@ -36,7 +38,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Datos del Albergue"
+                android:text="Datos de tu asociación"
                 android:fontFamily="@font/chewy"
                 android:textColor="@color/marronOscuro"
                 android:textSize="22sp"
@@ -131,7 +133,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Credenciales de Acceso"
+                android:text="Datos de Acceso"
                 android:fontFamily="@font/chewy"
                 android:textColor="@color/marronOscuro"
                 android:textSize="18sp"

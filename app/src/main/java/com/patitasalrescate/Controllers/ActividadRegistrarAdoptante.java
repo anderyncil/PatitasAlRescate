@@ -1,5 +1,6 @@
 package com.patitasalrescate.Controllers;
 
+import android.net.eap.EapSessionConfig;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.widget.ArrayAdapter;
@@ -7,6 +8,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -14,17 +16,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.patitasalrescate.R;
 import com.patitasalrescate.accesoADatos.DAOAdoptante;
-import com.patitasalrescate.accesoADatos.SupabaseService;
 import com.patitasalrescate.model.Adoptante;
 import com.patitasalrescate.utils.SeguridadUtils;
-import java.util.UUID;
 
 public class ActividadRegistrarAdoptante extends AppCompatActivity {
 
     private EditText etNombre, etCorreo, etPass, etTelefono, etEdad;
     private Spinner spSexo;
     private DAOAdoptante daoAdoptante;
-    private SupabaseService supabaseService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,17 +31,21 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.ly_registrar_adoptante);
 
+
         Toolbar toolbar1 = findViewById(R.id.toolbarRegistrarAdoptante);
         setSupportActionBar(toolbar1);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-        toolbar1.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+        toolbar1.setNavigationOnClickListener(v -> {
+            getOnBackPressedDispatcher().onBackPressed();
+        });
 
+
+
+        //inicializamos con los elementos del .xml
         daoAdoptante = new DAOAdoptante(this);
-        supabaseService = new SupabaseService();
-
         etNombre = findViewById(R.id.rj_text_adopt_nombre);
         etCorreo = findViewById(R.id.rj_text_adopt_correo);
         etPass = findViewById(R.id.rj_text_adopt_password);
@@ -50,20 +53,29 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
         etEdad = findViewById(R.id.rj_text_adopt_edad);
         spSexo = findViewById(R.id.rj_combo_adopt_sexo);
 
+        // Crear Adapter
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.opciones_sexo, android.R.layout.simple_spinner_item);
+        // Diseño usado
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Aplicamos adaptador a elemento / Spinner "sexo"
         spSexo.setAdapter(adapter);
 
         findViewById(R.id.rj_button_registrar_adoptante).setOnClickListener(v -> registrarUsuario());
-    }
 
-    private void registrarUsuario() {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.registrar_adoptante), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+    }
+    private void registrarUsuario(){
         String nombre = etNombre.getText().toString().trim();
         String correo = etCorreo.getText().toString().trim();
         String passTextoPlano = etPass.getText().toString().trim();
         String telefono = etTelefono.getText().toString().trim();
 
+       //validacion para sexo
         int seleccion = spSexo.getSelectedItemPosition();
         if (seleccion == 0) {
             Toast.makeText(this, "Por favor, seleccione un sexo", Toast.LENGTH_SHORT).show();
@@ -74,53 +86,43 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
         String edadStr = etEdad.getText().toString().trim();
         String passEncriptada = SeguridadUtils.encriptar(passTextoPlano);
 
-        // Validaciones
-        if (nombre.isEmpty()) {
+        // validaciones de los datos
+        if(nombre.isEmpty()) {
             etNombre.setError("Aún no ha ingresado su NOMBRE");
             return;
-        }
-        if (passTextoPlano.length() < 6) {
+        }else if(passTextoPlano.length() < 6){
             etPass.setError("La CONTRASEÑA debe tener al menos 6 dígitos");
             return;
         }
-        if (correo.isEmpty()) {
+        if(correo.isEmpty()){
             etCorreo.setError("Ingrese su CORREO");
             return;
-        }
-        if (!Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
-            etCorreo.setError("Ingrese un formato de CORREO válido \n ejemplo: @gmail.com");
+        }else if(!Patterns.EMAIL_ADDRESS.matcher(correo).matches()){
+            etCorreo.setError("Ingrese un formato de CORRO válido \n ejemplo: @gmail.com");
             return;
         }
-        if (daoAdoptante.existeCorreo(correo)) {
+        if(daoAdoptante.existeCorreo(correo)){
             etCorreo.setError("Este CORREO ya está registrado, Intenta con otro");
             return;
         }
-        if (telefono.length() != 9) {
-            etTelefono.setError("El TELÉFONO debe contar 9 dígitos");
+
+        if(telefono.length() != 9){
+            etTelefono.setError("El TELEFONO debe contar 9 dígitos");
             return;
         }
-        if (edadStr.isEmpty()) {
+        if(edadStr.isEmpty()){
             etEdad.setError("Ingrese su EDAD");
             return;
         }
-        int edad;
-        try {
-            edad = Integer.parseInt(edadStr);
-        } catch (NumberFormatException e) {
-            etEdad.setError("Edad inválida");
-            return;
-        }
-        if (edad <= 8 || edad > 115) {
+        int edad = Integer.parseInt(edadStr);
+        if(edad <= 8 || edad > 115){
             etEdad.setError("Ingrese una edad válida (8-115)");
             return;
         }
 
-        // Generar UUID
-        String idAdoptante = UUID.randomUUID().toString();
-
-        // Crear objeto
+        //agregar a la base de datos
         Adoptante nuevoAdoptante = new Adoptante();
-        nuevoAdoptante.setIdAdoptante(idAdoptante);
+
         nuevoAdoptante.setNombre(nombre);
         nuevoAdoptante.setCorreo(correo);
         nuevoAdoptante.setPassword(passEncriptada);
@@ -129,29 +131,13 @@ public class ActividadRegistrarAdoptante extends AppCompatActivity {
         nuevoAdoptante.setSexo(sexo);
         nuevoAdoptante.setLastSync(System.currentTimeMillis());
 
-        // 1. Guardar localmente
-        long resultadoLocal = daoAdoptante.insertar(nuevoAdoptante);
-        if (resultadoLocal == -1) {
-            Toast.makeText(this, "Error al guardar localmente", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        long resultado = daoAdoptante.insertar(nuevoAdoptante);
 
-        // 2. Guardar en Supabase (hilo de fondo)
-        new Thread(() -> {
-            try {
-                boolean exitoNube = supabaseService.insertarAdoptante(nuevoAdoptante);
-                runOnUiThread(() -> {
-                    if (exitoNube) {
-                        Toast.makeText(this, "¡Registro completado! (local + nube)", Toast.LENGTH_LONG).show();
-                        finish();
-                    } else {
-                        Toast.makeText(this, "Guardado local OK, pero error en la nube", Toast.LENGTH_LONG).show();
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(this, "Error de conexión a la nube", Toast.LENGTH_SHORT).show());
-            }
-        }).start();
+        if (resultado != -1) {
+            Toast.makeText(this, "¡Registro exitoso! Bienvenido a Patitas", Toast.LENGTH_LONG).show();
+            finish();
+        } else {
+            Toast.makeText(this, "Error al guardar en la base de datos", Toast.LENGTH_SHORT).show();
+        }
     }
 }

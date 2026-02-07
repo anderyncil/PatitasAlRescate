@@ -7,6 +7,7 @@ import com.patitasalrescate.R;
 import com.patitasalrescate.accesoADatos.DAOAdoptante;
 import com.patitasalrescate.accesoADatos.DAORefugio;
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -28,6 +29,19 @@ public class ActividadIniciarSesion extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.ly_inicia_sesion);
+
+
+        Toolbar toolbar = findViewById(R.id.tollbariniciarsesion);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(v -> {
+            getOnBackPressedDispatcher().onBackPressed();
+        });
+
+
         // Iniciar los DAOs
         daoAdoptante = new DAOAdoptante(this);
         daoRefugio = new DAORefugio(this);
