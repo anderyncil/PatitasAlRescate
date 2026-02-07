@@ -50,7 +50,7 @@
                 android:hint="\t\t\t\tTu nombre completo"
                 app:boxStrokeColor="@color/marronPrimario"
                 app:hintTextColor="@color/marronPrimario"
-                app:startIconDrawable="@android:drawable/ic_menu_myplaces">
+                app:startIconDrawable="@drawable/rj_persona">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/rj_text_adopt_nombre"
@@ -66,7 +66,7 @@
                 android:layout_marginBottom="12dp"
                 android:hint="\t\t\t\tTeléfono"
                 app:boxStrokeColor="@color/marronPrimario"
-                app:startIconDrawable="@android:drawable/stat_sys_phone_call">
+                app:startIconDrawable="@drawable/rj_telefono">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/rj_text_adopt_telefono"
@@ -135,7 +135,9 @@
                 android:layout_marginBottom="12dp"
                 android:hint="\t\t\t\tCorreo"
                 app:boxStrokeColor="@color/marronPrimario"
-                app:startIconDrawable="@android:drawable/ic_dialog_email">
+                app:startIconDrawable="@drawable/rj_correo"
+                >
+                <!--app:startIconDrawable="@android:drawable/ic_dialog_email"-->
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/rj_text_adopt_correo"
@@ -152,7 +154,7 @@
                 android:hint="\t\t\t\tContraseña"
                 app:boxStrokeColor="@color/marronPrimario"
                 app:passwordToggleEnabled="true"
-                app:startIconDrawable="@android:drawable/ic_lock_idle_lock">
+                app:startIconDrawable="@drawable/rj_candadonube">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/rj_text_adopt_password"
