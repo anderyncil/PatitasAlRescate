@@ -1,27 +1,32 @@
 package com.patitasalrescate.Controllers;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.EditText;
-import androidx.appcompat.app.AppCompatActivity;
-import com.patitasalrescate.R;
-import com.patitasalrescate.accesoADatos.DAOAdoptante;
-import com.patitasalrescate.accesoADatos.DAORefugio;
+import android.widget.Toast;
+
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import android.content.Intent;
-import android.widget.Button;
-import android.widget.Toast;
+
+import com.patitasalrescate.R;
+import com.patitasalrescate.accesoADatos.DAOAdoptante;
+import com.patitasalrescate.accesoADatos.DAORefugio;
 import com.patitasalrescate.model.Adoptante;
 import com.patitasalrescate.model.Refugio;
 import com.patitasalrescate.utils.SeguridadUtils;
 
 public class ActividadIniciarSesion extends AppCompatActivity {
+
     private EditText textCorreo, textPassword;
-    private DAOAdoptante daoAdoptante;
     private Button button_Ingresar;
+
+    // DAOs
+    private DAOAdoptante daoAdoptante;
     private DAORefugio daoRefugio;
 
     @Override
@@ -30,77 +35,81 @@ public class ActividadIniciarSesion extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.ly_inicia_sesion);
 
-
+        // 1. Configurar Toolbar
         Toolbar toolbar = findViewById(R.id.tollbariniciarsesion);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-        toolbar.setNavigationOnClickListener(v -> {
-            getOnBackPressedDispatcher().onBackPressed();
-        });
+        toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
-
-        // Iniciar los DAOs
+        // 2. Inicializar DAOs
         daoAdoptante = new DAOAdoptante(this);
         daoRefugio = new DAORefugio(this);
 
-        // Referenciar los UI
+        // 3. Referenciar UI
         textCorreo = findViewById(R.id.rj_text_correr_inisesion);
         textPassword = findViewById(R.id.rj_text_pass_inisesion);
         button_Ingresar = findViewById(R.id.rj_button_ingresar_inisesion);
 
-        button_Ingresar.setOnClickListener(v->ejecutarLogin());
+        // 4. Listener del Botón
+        button_Ingresar.setOnClickListener(v -> ejecutarLogin());
 
+        // Ajuste EdgeToEdge
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.iniciarsesion), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        //CONSIDERA ENVIAR EL NOMBRE DEL REFUGIO CUANDO SEA DE TIPO REFUGIO CON PUTEXTRAS
-        // Y PONLE DE NOMBRE: nombre_refugio_key
-        //PORQUE LO LLAMARÉ EN INICIO REFUGIO, LO MISMO HACER PARA INCIOADOPTANTE
-        // Y COORDINA CON LA PERSONA DE INICIO ADOPTANTE PARA VER COMO LO TRABAJAN
     }
-    private void ejecutarLogin(){
+
+    private void ejecutarLogin() {
         String correo = textCorreo.getText().toString().trim();
         String passPlana = textPassword.getText().toString().trim();
-        if(correo.isEmpty() || passPlana.isEmpty()){
+
+        if (correo.isEmpty() || passPlana.isEmpty()) {
             Toast.makeText(this, "Completa todos los Campos", Toast.LENGTH_SHORT).show();
             return;
         }
-        // Encriptacion
+
+        // Encriptamos la contraseña ingresada
         String passEncriptada = SeguridadUtils.encriptar(passPlana);
-        // buscamos en la Tabla ADOPTANTE
+
+        // 1. Buscamos primero en ADOPTANTES
         Adoptante adoptante = daoAdoptante.login(correo, passEncriptada);
-        if(adoptante != null){
-            // Es Adoptante
+        if (adoptante != null) {
             irAPantallaPrincipal(adoptante.getNombre(), "Adoptante");
             return;
         }
-        //Si no fue adoptante vamos a refugio
+
+        // 2. Si no es adoptante, buscamos en REFUGIOS
         Refugio refugio = daoRefugio.login(correo, passEncriptada);
-        if(refugio != null){
-            // Es un refugio
+        if (refugio != null) {
             irAPantallaPrincipal(refugio.getNombre(), "Refugio");
             return;
         }
-        // No existente, falta registrarse
-        Toast.makeText(this, "Contraseña o Correo Electronico incorrectos. \nIntentalo de nuevo", Toast.LENGTH_LONG).show();
-    }
-    public void irAPantallaPrincipal(String nombre, String tipo){
 
-        Toast.makeText(this, "Bienvenido" + nombre + "("+tipo+")", Toast.LENGTH_SHORT).show();
+        // 3. Si no existe en ninguno
+        Toast.makeText(this, "Contraseña o Correo incorrectos", Toast.LENGTH_LONG).show();
+    }
+
+    public void irAPantallaPrincipal(String nombre, String tipo) {
         Intent intent;
-        if(tipo.equals("Adoptante")){
+
+        Toast.makeText(this, "Bienvenido " + nombre, Toast.LENGTH_SHORT).show();
+
+        if (tipo.equals("Adoptante")) {
             intent = new Intent(this, ActividadInicioAdoptante.class);
+            // Enviamos el nombre con la clave para Adoptante
             intent.putExtra("nombre_adoptante_key", nombre);
-        }else{
+        } else {
             intent = new Intent(this, ActividadInicioRefugio.class);
+            // Enviamos el nombre con la clave para Refugio
             intent.putExtra("nombre_refugio_key", nombre);
         }
+
         startActivity(intent);
-        finish(); //cerramos login para que no regrese pantalla
+        finish(); // Cerramos Login
     }
 }

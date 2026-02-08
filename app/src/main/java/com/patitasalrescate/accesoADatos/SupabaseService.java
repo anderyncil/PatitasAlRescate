@@ -19,6 +19,7 @@ import okhttp3.Response;
 public class SupabaseService {
 
     private static final String SUPABASE_URL = "https://sjbuliztalqmsquunnsv.supabase.co";
+    // TU ANON KEY (Mantenla segura)
     private static final String ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqYnVsaXp0YWxxbXNxdXVubnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAwODMwOTEsImV4cCI6MjA4NTY1OTA5MX0.SmTZWaSdO0OFTmHgM4VeBZyErc1O_MQO1be8pKJahoI";
 
     private final OkHttpClient client = new OkHttpClient();
@@ -32,6 +33,56 @@ public class SupabaseService {
                 .addHeader("Content-Type", "application/json");
     }
 
+    // --- SUBIDA DE FOTOS ---
+    public String subirFoto(byte[] imagenBytes, String nombreArchivo) {
+        // Asegúrate de que el bucket se llame 'imagenes-refugio' en Supabase Storage
+        String urlStorage = SUPABASE_URL + "/storage/v1/object/imagenes-refugio/" + nombreArchivo;
+        RequestBody requestBody = RequestBody.create(imagenBytes, MediaType.parse("image/jpeg"));
+
+        Request request = new Request.Builder()
+                .url(urlStorage)
+                .addHeader("apikey", ANON_KEY)
+                .addHeader("Authorization", "Bearer " + ANON_KEY)
+                .addHeader("Content-Type", "image/jpeg")
+                .post(requestBody)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                return SUPABASE_URL + "/storage/v1/object/public/imagenes-refugio/" + nombreArchivo;
+            } else {
+                android.util.Log.e("SupabaseFoto", "Error subiendo foto: " + response.code());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // --- INSERTAR REFUGIO (REGISTRO) ---
+    public boolean insertarRefugio(Refugio refugio) throws IOException {
+        String json = gson.toJson(refugio);
+        RequestBody body = RequestBody.create(json, MediaType.get("application/json; charset=utf-8"));
+
+        Request request = baseRequest("refugios") // La tabla se llama 'refugios'
+                .post(body)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                // ESTO TE DIRÁ EL ERROR EXACTO EN EL LOGCAT
+                String errorBody = response.body() != null ? response.body().string() : "Sin mensaje";
+                android.util.Log.e("SupabaseError", "❌ CÓDIGO: " + response.code());
+                android.util.Log.e("SupabaseError", "❌ MENSAJE: " + errorBody);
+                android.util.Log.e("SupabaseError", "❌ JSON ENVIADO: " + json);
+                return false;
+            }
+            android.util.Log.d("SupabaseExito", "✅ Refugio subido correctamente");
+            return true;
+        }
+    }
+
+    // --- OTROS MÉTODOS (Mascotas, Adoptantes...) ---
     public List<Mascota> getMascotas() throws IOException {
         Request request = baseRequest("mascotas?select=*").build();
         try (Response response = client.newCall(request).execute()) {
@@ -43,80 +94,17 @@ public class SupabaseService {
         return null;
     }
 
-    // Método para registrar adoptante en Supabase
+    public boolean insertarMascota(Mascota mascota) throws IOException {
+        String json = gson.toJson(mascota);
+        RequestBody body = RequestBody.create(json, MediaType.get("application/json; charset=utf-8"));
+        Request request = baseRequest("mascotas").post(body).build();
+        try (Response response = client.newCall(request).execute()) { return response.isSuccessful(); }
+    }
+
     public boolean insertarAdoptante(Adoptante adoptante) throws IOException {
-        // Convertimos el objeto a JSON
         String json = gson.toJson(adoptante);
-
-        // Creamos el cuerpo de la petición
         RequestBody body = RequestBody.create(json, MediaType.get("application/json; charset=utf-8"));
-
-        // Construimos la petición POST a la tabla 'adoptantes'
-        Request request = baseRequest("adoptantes")
-                .post(body)
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                String errorBody = response.body() != null ? response.body().string() : "No body";
-                android.util.Log.e("SupabaseAdoptante", "Error " + response.code() + ": " + errorBody);
-                android.util.Log.e("SupabaseAdoptante", "JSON enviado: " + json);
-                return false;
-            }
-
-            android.util.Log.d("SupabaseAdoptante", "Adoptante insertado OK: " + adoptante.getIdAdoptante());
-            return true;
-        }
-    }
-
-    public String subirFoto(byte[] imagenBytes, String nombreArchivo) {
-        // 1. URL específica del Storage
-        String urlStorage = SUPABASE_URL + "/storage/v1/object/imagenes-refugio/" + nombreArchivo;
-
-        // 2. Preparamos el cuerpo del archivo
-        RequestBody requestBody = RequestBody.create(imagenBytes, MediaType.parse("image/jpeg"));
-
-        // 3. Petición POST
-        Request request = new Request.Builder()
-                .url(urlStorage)
-                .addHeader("apikey", ANON_KEY)
-                .addHeader("Authorization", "Bearer " + ANON_KEY)
-                .addHeader("Content-Type", "image/jpeg")
-                .post(requestBody)
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (response.isSuccessful()) {
-                // Si subió bien, construimos la URL pública manualmente
-                return SUPABASE_URL + "/storage/v1/object/public/imagenes-refugio/" + nombreArchivo;
-            } else {
-                android.util.Log.e("Supabase", "Error subiendo: " + response.code() + " - " + response.message());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null; // Retorna null si falló
-    }
-
-
-
-
-    public boolean insertarRefugio(Refugio refugio) throws IOException {
-        String json = gson.toJson(refugio);
-        RequestBody body = RequestBody.create(json, MediaType.get("application/json; charset=utf-8"));
-
-        Request request = baseRequest("refugios")
-                .post(body)
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                String errorBody = response.body() != null ? response.body().string() : "No body";
-                android.util.Log.e("SupabaseRefugio", "Error " + response.code() + ": " + errorBody);
-                return false;
-            }
-            android.util.Log.d("SupabaseRefugio", "Refugio insertado OK");
-            return true;
-        }
+        Request request = baseRequest("adoptantes").post(body).build();
+        try (Response response = client.newCall(request).execute()) { return response.isSuccessful(); }
     }
 }

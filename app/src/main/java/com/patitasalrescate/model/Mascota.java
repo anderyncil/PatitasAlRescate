@@ -8,6 +8,7 @@ import java.util.List;
 
 public class Mascota {
 
+    // --- ID ---
     @SerializedName("id_mascota")
     @Expose
     private String idMascota;
@@ -16,31 +17,42 @@ public class Mascota {
     @Expose
     private String idRefugio;
 
+    // --- DATOS BÁSICOS (Agregados SerializedName para seguridad) ---
+    @SerializedName("nombre")
     @Expose
     private String nombre;
 
+    @SerializedName("especie")
     @Expose
     private String especie;
 
+    @SerializedName("raza")
     @Expose
     private String raza;
 
+    @SerializedName("edad")
     @Expose
     private int edad;
 
+    @SerializedName("temperamento")
     @Expose
     private String temperamento;
 
+    @SerializedName("historia")
     @Expose
     private String historia;
 
+
+    @SerializedName("fotos")
     @Expose
     private List<String> fotos = new ArrayList<>();
 
+    // --- ESTADO ---
     @SerializedName("es_adoptado")
     @Expose
     private boolean esAdoptado;
 
+    // --- INTERNO (No se envía a la nube) ---
     private transient long lastSync;
 
     public Mascota() {}

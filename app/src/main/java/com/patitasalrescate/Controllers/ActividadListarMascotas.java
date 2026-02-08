@@ -12,9 +12,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.patitasalrescate.R;
 import com.patitasalrescate.accesoADatos.DAOMascota;
+import com.patitasalrescate.accesoADatos.SupabaseService; // Importar
 import com.patitasalrescate.model.Mascota;
 import com.patitasalrescate.ui.AdaptadorMascotas;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +27,8 @@ public class ActividadListarMascotas extends AppCompatActivity {
     private DAOMascota daoMascota;
     private AdaptadorMascotas adaptador;
     private List<Mascota> listaMascotas;
+    private SupabaseService supabaseService; // Instancia
 
-    // Variable clave para saber el rol
     private boolean esModoRefugio = false;
 
     @Override
@@ -34,23 +36,21 @@ public class ActividadListarMascotas extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ly_listar_mascotas);
 
-        // 1. Configurar Toolbar
         Toolbar toolbar = findViewById(R.id.toolbarListarMascotas);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-        toolbar.setNavigationOnClickListener(v -> finish()); // Flecha atrás cierra la actividad
-
+        toolbar.setNavigationOnClickListener(v -> finish());
 
         recyclerMascotas = findViewById(R.id.recycler_mascotas);
         txtListaVacia = findViewById(R.id.txt_lista_vacia);
         recyclerMascotas.setLayoutManager(new LinearLayoutManager(this));
 
         daoMascota = new DAOMascota(this);
+        supabaseService = new SupabaseService(); // Inicializar
         listaMascotas = new ArrayList<>();
-
 
         if (getIntent().hasExtra("es_refugio_key")) {
             esModoRefugio = getIntent().getBooleanExtra("es_refugio_key", false);
@@ -62,29 +62,66 @@ public class ActividadListarMascotas extends AppCompatActivity {
             getSupportActionBar().setTitle("Adopta un Amigo");
         }
 
-        cargarListaMascotas();
+        // Carga inicial local
+        cargarListaLocal();
+
+        // Sincronizar con la nube (NUEVO)
+        sincronizarConNube();
     }
 
-
-    private void cargarListaMascotas() {
+    private void cargarListaLocal() {
         listaMascotas = daoMascota.listarTodos();
+        actualizarUI(listaMascotas);
+    }
 
-        if (listaMascotas.isEmpty()) {
+    private void actualizarUI(List<Mascota> lista) {
+        if (lista.isEmpty()) {
             recyclerMascotas.setVisibility(View.GONE);
             txtListaVacia.setVisibility(View.VISIBLE);
         } else {
             recyclerMascotas.setVisibility(View.VISIBLE);
             txtListaVacia.setVisibility(View.GONE);
-
-            adaptador = new AdaptadorMascotas(listaMascotas, esModoRefugio);
+            adaptador = new AdaptadorMascotas(lista, esModoRefugio);
             recyclerMascotas.setAdapter(adaptador);
         }
     }
 
+    // Método para bajar datos de Supabase y guardarlos en local
+    private void sincronizarConNube() {
+        new Thread(() -> {
+            try {
+                // 1. Obtener de la nube
+                List<Mascota> mascotasRemotas = supabaseService.getMascotas();
+
+                if (mascotasRemotas != null) {
+                    // 2. Guardar en SQLite (Sincronización)
+                    for (Mascota m : mascotasRemotas) {
+                        // Verificamos si ya existe en local para actualizar o insertar
+                        Mascota local = daoMascota.obtenerPorId(m.getIdMascota());
+                        if (local == null) {
+                            daoMascota.insertar(m);
+                        } else {
+                            // Opcional: Podrías verificar last_sync para ver cual es más nuevo
+                            // Por ahora, actualizamos con lo que viene de la nube
+                            daoMascota.actualizar(m);
+                        }
+                    }
+
+                    // 3. Recargar la lista en el Hilo Principal
+                    runOnUiThread(() -> {
+                        cargarListaLocal();
+                        // Toast.makeText(this, "Lista actualizada de la nube", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        cargarListaMascotas();
+        cargarListaLocal(); // Recargar por si volvimos de Editar
     }
 }

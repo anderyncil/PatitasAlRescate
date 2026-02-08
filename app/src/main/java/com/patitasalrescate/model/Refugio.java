@@ -1,18 +1,33 @@
 package com.patitasalrescate.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Refugio {
 
-    private String idRefugio;        // UUID como String
+    // TRADUCCIÓN: Java "idRefugio" -> Supabase "id_refugio"
+    @SerializedName("id_refugio")
+    private String idRefugio;
 
     private String nombre;
     private String direccion;
     private double latitud;
     private double longitud;
     private String correo;
-    private transient String password;
+
+    // TRADUCCIÓN: Java "password" -> Supabase "password"
+    // Quitamos 'transient' para que SÍ se envíe a la nube
+    @SerializedName("password")
+    private String password;
+
+    // TRADUCCIÓN: Java "numCelular" -> Supabase "num_celular"
+    @SerializedName("num_celular")
     private String numCelular;
+
+    // TRADUCCIÓN: Java "fotoUrl" -> Supabase "foto"
+    @SerializedName("foto")
     private String fotoUrl;
-    private long lastSync;
+
+    private transient long lastSync;
 
     public Refugio() {}
 
@@ -30,6 +45,7 @@ public class Refugio {
         this.lastSync = lastSync;
     }
 
+    // --- GETTERS Y SETTERS ---
     public String getIdRefugio() { return idRefugio; }
     public void setIdRefugio(String idRefugio) { this.idRefugio = idRefugio; }
 
