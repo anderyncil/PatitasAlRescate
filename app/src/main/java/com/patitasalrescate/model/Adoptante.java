@@ -10,7 +10,7 @@ public class Adoptante {
     private String nombre;
     private String correo;
 
-    private transient String password;   // Ya lo tenías bien
+    private String password;
 
     @SerializedName("num_celular")
     private String numCelular;
