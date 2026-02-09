@@ -2,6 +2,8 @@ package com.patitasalrescate.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Adoptante {
 
     @SerializedName("id_adoptante")
@@ -10,7 +12,8 @@ public class Adoptante {
     private String nombre;
     private String correo;
 
-    private String password;
+    @SerializedName("password")  // ← Agrega SerializedName para coincidir con columna 'password'
+    private String password;     // ← Quita transient para que se envíe a Supabase
 
     @SerializedName("num_celular")
     private String numCelular;
@@ -19,7 +22,7 @@ public class Adoptante {
     private String sexo;
 
     @SerializedName("last_sync")
-    private transient long lastSync;   // ← AGREGAR transient aquí
+    private transient long lastSync;  // ← Mantén transient, es local
 
     public Adoptante() {}
 

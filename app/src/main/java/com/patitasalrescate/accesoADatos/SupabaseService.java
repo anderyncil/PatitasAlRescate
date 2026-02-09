@@ -1,5 +1,7 @@
 package com.patitasalrescate.accesoADatos;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.patitasalrescate.model.Adoptante;
@@ -97,8 +99,22 @@ public class SupabaseService {
     public boolean insertarMascota(Mascota mascota) throws IOException {
         String json = gson.toJson(mascota);
         RequestBody body = RequestBody.create(json, MediaType.get("application/json; charset=utf-8"));
-        Request request = baseRequest("mascotas").post(body).build();
-        try (Response response = client.newCall(request).execute()) { return response.isSuccessful(); }
+
+        Request request = baseRequest("mascotas")
+                .post(body)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                String errorBody = response.body() != null ? response.body().string() : "No body";
+                Log.e("SupabaseMascota", "Error al insertar mascota: Código " + response.code() + " - " + response.message());
+                Log.e("SupabaseMascota", "JSON enviado: " + json);
+                Log.e("SupabaseMascota", "Respuesta de error: " + errorBody);
+                return false;
+            }
+            Log.d("SupabaseMascota", "Mascota insertada OK: " + mascota.getIdMascota());
+            return true;
+        }
     }
 
     public boolean insertarAdoptante(Adoptante adoptante) throws IOException {
@@ -106,5 +122,61 @@ public class SupabaseService {
         RequestBody body = RequestBody.create(json, MediaType.get("application/json; charset=utf-8"));
         Request request = baseRequest("adoptantes").post(body).build();
         try (Response response = client.newCall(request).execute()) { return response.isSuccessful(); }
+    }
+
+    // Obtener todos los adoptantes de Supabase (para sincronización)
+    public List<Adoptante> getAdoptantes() throws IOException {
+        Request request = baseRequest("adoptantes?select=*").build();
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                Type listType = new TypeToken<List<Adoptante>>(){}.getType();
+                return gson.fromJson(response.body().string(), listType);
+            }
+        }
+        return null;
+    }
+
+    // Obtener todos los refugios de Supabase (para sincronización)
+    public List<Refugio> getRefugios() throws IOException {
+        Request request = baseRequest("refugios?select=*").build();
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                Type listType = new TypeToken<List<Refugio>>(){}.getType();
+                return gson.fromJson(response.body().string(), listType);
+            }
+        }
+        return null;
+    }
+
+    // Login remoto para adoptante (consulta Supabase)
+    public Adoptante loginAdoptanteRemoto(String correo, String passwordEncriptada) throws IOException {
+        Request request = baseRequest("adoptantes?correo=eq." + correo + "&password=eq." + passwordEncriptada + "&select=*").build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                Type listType = new TypeToken<List<Adoptante>>(){}.getType();
+                List<Adoptante> resultados = gson.fromJson(response.body().string(), listType);
+                if (!resultados.isEmpty()) {
+                    return resultados.get(0);
+                }
+            }
+        }
+        return null;
+    }
+
+    // Login remoto para refugio (consulta Supabase)
+    public Refugio loginRefugioRemoto(String correo, String passwordEncriptada) throws IOException {
+        Request request = baseRequest("refugios?correo=eq." + correo + "&password=eq." + passwordEncriptada + "&select=*").build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful() && response.body() != null) {
+                Type listType = new TypeToken<List<Refugio>>(){}.getType();
+                List<Refugio> resultados = gson.fromJson(response.body().string(), listType);
+                if (!resultados.isEmpty()) {
+                    return resultados.get(0);
+                }
+            }
+        }
+        return null;
     }
 }

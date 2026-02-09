@@ -1,6 +1,7 @@
 package com.patitasalrescate.Controllers;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,18 +17,21 @@ import androidx.core.view.WindowInsetsCompat;
 import com.patitasalrescate.R;
 import com.patitasalrescate.accesoADatos.DAOAdoptante;
 import com.patitasalrescate.accesoADatos.DAORefugio;
+import com.patitasalrescate.accesoADatos.SupabaseService;
 import com.patitasalrescate.model.Adoptante;
 import com.patitasalrescate.model.Refugio;
 import com.patitasalrescate.utils.SeguridadUtils;
+
+import java.io.IOException;
 
 public class ActividadIniciarSesion extends AppCompatActivity {
 
     private EditText textCorreo, textPassword;
     private Button button_Ingresar;
 
-    // DAOs
     private DAOAdoptante daoAdoptante;
     private DAORefugio daoRefugio;
+    private SupabaseService supabaseService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +39,7 @@ public class ActividadIniciarSesion extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.ly_inicia_sesion);
 
-        // 1. Configurar Toolbar
+        // Toolbar
         Toolbar toolbar = findViewById(R.id.tollbariniciarsesion);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -44,19 +48,16 @@ public class ActividadIniciarSesion extends AppCompatActivity {
         }
         toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
-        // 2. Inicializar DAOs
         daoAdoptante = new DAOAdoptante(this);
         daoRefugio = new DAORefugio(this);
+        supabaseService = new SupabaseService();
 
-        // 3. Referenciar UI
         textCorreo = findViewById(R.id.rj_text_correr_inisesion);
         textPassword = findViewById(R.id.rj_text_pass_inisesion);
         button_Ingresar = findViewById(R.id.rj_button_ingresar_inisesion);
 
-        // 4. Listener del Botón
         button_Ingresar.setOnClickListener(v -> ejecutarLogin());
 
-        // Ajuste EdgeToEdge
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.iniciarsesion), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -73,43 +74,85 @@ public class ActividadIniciarSesion extends AppCompatActivity {
             return;
         }
 
-        // Encriptamos la contraseña ingresada
         String passEncriptada = SeguridadUtils.encriptar(passPlana);
 
-        // 1. Buscamos primero en ADOPTANTES
-        Adoptante adoptante = daoAdoptante.login(correo, passEncriptada);
-        if (adoptante != null) {
-            irAPantallaPrincipal(adoptante.getNombre(), "Adoptante");
-            return;
-        }
+        // Deshabilitar botón para evitar múltiples clics
+        button_Ingresar.setEnabled(false);
 
-        // 2. Si no es adoptante, buscamos en REFUGIOS
-        Refugio refugio = daoRefugio.login(correo, passEncriptada);
-        if (refugio != null) {
-            irAPantallaPrincipal(refugio.getNombre(), "Refugio");
-            return;
-        }
+        new Thread(() -> {
+            try {
+                // 1. Adoptante - local
+                Adoptante adoptanteLocal = daoAdoptante.login(correo, passEncriptada);
+                if (adoptanteLocal != null) {
+                    runOnUiThread(() -> {
+                        irAPantallaPrincipal(adoptanteLocal.getNombre(), "Adoptante");
+                        button_Ingresar.setEnabled(true);
+                    });
+                    return;
+                }
 
-        // 3. Si no existe en ninguno
-        Toast.makeText(this, "Contraseña o Correo incorrectos", Toast.LENGTH_LONG).show();
+                // 2. Adoptante - remoto
+                Adoptante adoptanteRemoto = supabaseService.loginAdoptanteRemoto(correo, passEncriptada);
+                if (adoptanteRemoto != null) {
+                    daoAdoptante.insertar(adoptanteRemoto); // guardar local
+                    runOnUiThread(() -> {
+                        irAPantallaPrincipal(adoptanteRemoto.getNombre(), "Adoptante");
+                        button_Ingresar.setEnabled(true);
+                    });
+                    return;
+                }
+
+                // 3. Refugio - local
+                Refugio refugioLocal = daoRefugio.login(correo, passEncriptada);
+                if (refugioLocal != null) {
+                    guardarSesionRefugio(refugioLocal);
+                    runOnUiThread(() -> {
+                        irAPantallaPrincipal(refugioLocal.getNombre(), "Refugio");
+                        button_Ingresar.setEnabled(true);
+                    });
+                    return;
+                }
+
+                // 4. Refugio - remoto
+                Refugio refugioRemoto = supabaseService.loginRefugioRemoto(correo, passEncriptada);
+                if (refugioRemoto != null) {
+                    daoRefugio.insertar(refugioRemoto); // guardar local
+                    guardarSesionRefugio(refugioRemoto);
+                    runOnUiThread(() -> {
+                        irAPantallaPrincipal(refugioRemoto.getNombre(), "Refugio");
+                        button_Ingresar.setEnabled(true);
+                    });
+                    return;
+                }
+
+                // Si nada funcionó
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Correo o contraseña incorrectos", Toast.LENGTH_LONG).show();
+                    button_Ingresar.setEnabled(true);
+                });
+
+            } catch (IOException e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Error de conexión. Intenta más tarde", Toast.LENGTH_LONG).show();
+                    button_Ingresar.setEnabled(true);
+                });
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void guardarSesionRefugio(Refugio refugio) {
+        SharedPreferences prefs = getSharedPreferences("sesion_refugio", MODE_PRIVATE);
+        prefs.edit()
+                .putString("id_refugio", refugio.getIdRefugio())
+                .putString("nombre_refugio", refugio.getNombre())
+                .apply();
     }
 
     public void irAPantallaPrincipal(String nombre, String tipo) {
-        Intent intent;
-
-        Toast.makeText(this, "Bienvenido " + nombre, Toast.LENGTH_SHORT).show();
-
-        if (tipo.equals("Adoptante")) {
-            intent = new Intent(this, ActividadInicioAdoptante.class);
-            // Enviamos el nombre con la clave para Adoptante
-            intent.putExtra("nombre_adoptante_key", nombre);
-        } else {
-            intent = new Intent(this, ActividadInicioRefugio.class);
-            // Enviamos el nombre con la clave para Refugio
-            intent.putExtra("nombre_refugio_key", nombre);
-        }
-
+        Intent intent = new Intent(this, tipo.equals("Adoptante") ? ActividadInicioAdoptante.class : ActividadInicioRefugio.class);
+        intent.putExtra(tipo.equals("Adoptante") ? "nombre_adoptante_key" : "nombre_refugio_key", nombre);
         startActivity(intent);
-        finish(); // Cerramos Login
+        finish();
     }
 }
