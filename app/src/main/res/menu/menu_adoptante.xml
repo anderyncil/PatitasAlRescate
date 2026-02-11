@@ -2,27 +2,33 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/itemInicioAdoptante"
-        android:icon="@android:drawable/ic_menu_view"
-        android:title="Inicio" />
-    <item
-        android:id="@+id/itemRegistrarMascota"
-        android:icon="@android:drawable/ic_menu_add"
-        android:title="Registrar Mascota" />
+    <group android:checkableBehavior="single">
 
-    <item
-        android:id="@+id/itemListarMascotasAdoptante"
-        android:icon="@android:drawable/ic_menu_sort_by_size"
-        android:title="Mascotas" />
+        <item
+            android:id="@+id/itemInicioAdoptante"
+            android:icon="@drawable/ic_home"
+            android:title="Inicio"
+            app:showAsAction="never" />
 
-    <item
-        android:id="@+id/itemFavoritosAdoptante"
-        android:icon="@android:drawable/btn_star_big_on"
-        android:title="Favoritos" />
+        <item
+            android:id="@+id/itemListarMascotasAdoptante"
+            android:icon="@drawable/ic_paw"
+            android:title="Ver Mascotas"
+            app:showAsAction="never" />
+
+        <item
+            android:id="@+id/itemFavoritosAdoptante"
+            android:icon="@drawable/ic_heart"
+            android:title="Favoritos"
+            app:showAsAction="never" />
+
+    </group>
 
     <item
         android:id="@+id/itemSalirAdoptante"
-        android:icon="@android:drawable/ic_lock_power_off"
-        android:title="Salir" />
+        android:icon="@drawable/ic_logout"
+        android:title="Cerrar sesión"
+        android:titleTextColor="@android:color/holo_red_dark"
+        app:showAsAction="never" />
+
 </menu>
