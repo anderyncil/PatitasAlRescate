@@ -73,7 +73,6 @@ public class ActividadAdopcion extends AppCompatActivity {
             refugio.setDireccion("Calle Demo 123");
             refugio.setNumCelular("987654321");
             refugio.setCorreo("demo@refugio.com");
-            refugio.setPassword("123");
         }
 
         TextView txtTitulo = findViewById(R.id.txtTituloAdopcion);
@@ -108,10 +107,9 @@ public class ActividadAdopcion extends AppCompatActivity {
         );
 
         daoAdopcion.insertar(nuevaAdopcion);
-        mascota.setEstado("EN_PROCESO");
         daoMascota.actualizar(mascota);
 
-        Toast.makeText(this, "¡Solicitud enviada (Demo)! Redirigiendo a WhatsApp...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "¡Solicitud enviada! Redirigiendo a WhatsApp...", Toast.LENGTH_SHORT).show();
         abrirWhatsapp(textoIngresado);
         finish();
     }
