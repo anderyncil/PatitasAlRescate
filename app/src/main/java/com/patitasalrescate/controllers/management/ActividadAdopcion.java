@@ -73,7 +73,6 @@ public class ActividadAdopcion extends AppCompatActivity {
             refugio.setDireccion("Calle Demo 123");
             refugio.setNumCelular("987654321");
             refugio.setCorreo("demo@refugio.com");
-            refugio.setPassword("123");
         }
 
         TextView txtTitulo = findViewById(R.id.txtTituloAdopcion);
