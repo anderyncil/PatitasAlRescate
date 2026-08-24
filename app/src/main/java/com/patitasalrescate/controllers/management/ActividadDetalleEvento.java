@@ -42,8 +42,12 @@ public class ActividadDetalleEvento extends AppCompatActivity {
             if (evento.getFotoUrl() != null && !evento.getFotoUrl().isEmpty()) {
                 Glide.with(this)
                         .load(evento.getFotoUrl())
+                        .placeholder(R.drawable.evento_default)
+                        .error(R.drawable.evento_default)
                         .centerCrop()
                         .into(imgDetalle);
+            } else {
+                imgDetalle.setImageResource(R.drawable.evento_default);
             }
 
             btnMapa.setOnClickListener(v -> verEnMapa());
