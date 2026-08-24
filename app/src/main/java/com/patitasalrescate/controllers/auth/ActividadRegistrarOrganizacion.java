@@ -79,7 +79,6 @@ public class ActividadRegistrarOrganizacion extends AppCompatActivity {
         nuevoRefugio.setNombre(nombre);
         nuevoRefugio.setDireccion(direccion);
         nuevoRefugio.setCorreo(correo);
-        nuevoRefugio.setPassword(password);
         nuevoRefugio.setNumCelular(telefono);
 
         daoRefugio.insertar(nuevoRefugio);
