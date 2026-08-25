@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public class ActividadRegistrarEvento extends AppCompatActivity {
 
-    private EditText edtNombre, edtFecha, edtDescripcion, edtFoto;
+    private EditText edtNombre, edtFecha, edtDescripcion, edtFoto, edtLat, edtLong;
     private Button btnGuardar;
     private DAOEvento daoEvento;
     private Evento eventoExistente;
@@ -44,6 +44,8 @@ public class ActividadRegistrarEvento extends AppCompatActivity {
         edtFecha = findViewById(R.id.edt_fecha_evento);
         edtDescripcion = findViewById(R.id.edt_descripcion_evento);
         edtFoto = findViewById(R.id.edt_foto_evento);
+        edtLat = findViewById(R.id.edt_latitud_evento);
+        edtLong = findViewById(R.id.edt_longitud_evento);
         btnGuardar = findViewById(R.id.btn_guardar_evento);
     }
 
@@ -62,6 +64,8 @@ public class ActividadRegistrarEvento extends AppCompatActivity {
         edtFecha.setText(eventoExistente.getFecha());
         edtDescripcion.setText(eventoExistente.getDescripcion());
         edtFoto.setText(eventoExistente.getFotoUrl());
+        edtLat.setText(String.valueOf(eventoExistente.getLatitud()));
+        edtLong.setText(String.valueOf(eventoExistente.getLongitud()));
         btnGuardar.setText("ACTUALIZAR EVENTO");
     }
 
@@ -70,14 +74,25 @@ public class ActividadRegistrarEvento extends AppCompatActivity {
         String fecha = edtFecha.getText().toString().trim();
         String descripcion = edtDescripcion.getText().toString().trim();
         String foto = edtFoto.getText().toString().trim();
+        String latStr = edtLat.getText().toString().trim();
+        String longStr = edtLong.getText().toString().trim();
 
         if (nombre.isEmpty() || fecha.isEmpty() || descripcion.isEmpty()) {
             Toast.makeText(this, "Por favor completa los campos obligatorios", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        double lat = 0, lon = 0;
+        try {
+            if (!latStr.isEmpty()) lat = Double.parseDouble(latStr);
+            if (!longStr.isEmpty()) lon = Double.parseDouble(longStr);
+        } catch (Exception e) {
+            Toast.makeText(this, "Coordenadas inválidas", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (eventoExistente == null) {
-            Evento nuevo = new Evento(UUID.randomUUID().toString(), nombre, fecha, descripcion, foto);
+            Evento nuevo = new Evento(UUID.randomUUID().toString(), nombre, fecha, descripcion, foto, lat, lon);
             daoEvento.insertar(nuevo);
             Toast.makeText(this, "Evento registrado con éxito", Toast.LENGTH_SHORT).show();
         } else {
@@ -85,6 +100,8 @@ public class ActividadRegistrarEvento extends AppCompatActivity {
             eventoExistente.setFecha(fecha);
             eventoExistente.setDescripcion(descripcion);
             eventoExistente.setFotoUrl(foto);
+            eventoExistente.setLatitud(lat);
+            eventoExistente.setLongitud(lon);
             daoEvento.actualizar(eventoExistente);
             Toast.makeText(this, "Evento actualizado con éxito", Toast.LENGTH_SHORT).show();
         }
