@@ -51,7 +51,7 @@ public class AdaptadorEventos extends RecyclerView.Adapter<AdaptadorEventos.Even
                     .centerCrop()
                     .into(holder.imgFoto);
         } else {
-            holder.imgFoto.setImageResource(R.drawable.bg_circle_image); // Default or placeholder
+            holder.imgFoto.setImageResource(R.drawable.eventos);
         }
 
         holder.btnVerDetalles.setOnClickListener(v -> {

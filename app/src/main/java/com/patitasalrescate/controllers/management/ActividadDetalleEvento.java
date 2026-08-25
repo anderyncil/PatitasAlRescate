@@ -71,6 +71,8 @@ public class ActividadDetalleEvento extends AppCompatActivity {
                     .load(evento.getFotoUrl())
                     .centerCrop()
                     .into(imgDetalle);
+        } else {
+            imgDetalle.setImageResource(R.drawable.eventos);
         }
 
         btnMapa.setOnClickListener(v -> verEnMapa());
