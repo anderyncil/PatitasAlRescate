@@ -3,11 +3,13 @@ package com.patitasalrescate.controllers.management;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.bumptech.glide.Glide;
 import com.patitasalrescate.R;
 import com.patitasalrescate.controllers.auth.ActividadIngresar;
 import com.patitasalrescate.controllers.feed.ActividadFeedAdoptante;
@@ -40,6 +42,7 @@ public class ActividadPerfilUsuario extends AppCompatActivity {
         TextView txtTipo = findViewById(R.id.txtTipoUsuario);
         TextView txtCorreo = findViewById(R.id.txtCorreoUsuario);
         TextView txtCelular = findViewById(R.id.txtCelularUsuario);
+        ImageView imgAvatar = findViewById(R.id.imgAvatarUsuario);
 
         txtTipo.setText(sesion.isRefugio() ? "Refugio" : "Adoptante");
 
@@ -47,6 +50,14 @@ public class ActividadPerfilUsuario extends AppCompatActivity {
             txtNombre.setText(adoptante.getNombre());
             txtCorreo.setText(adoptante.getCorreo());
             txtCelular.setText(adoptante.getNumCelular());
+
+            if (adoptante.getFotoUrl() != null && !adoptante.getFotoUrl().isEmpty()) {
+                Glide.with(this)
+                        .load(adoptante.getFotoUrl())
+                        .placeholder(R.drawable.rj_persona)
+                        .circleCrop()
+                        .into(imgAvatar);
+            }
         }
 
         Button btnFavoritos = findViewById(R.id.btnVerFavoritos);
