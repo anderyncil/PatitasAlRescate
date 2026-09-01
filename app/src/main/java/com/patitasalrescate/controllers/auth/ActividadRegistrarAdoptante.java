@@ -17,7 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.patitasalrescate.R;
 import com.patitasalrescate.controllers.feed.ActividadRegistroExitoso;
-import com.patitasalrescate.data_access.DAOAdoptante;
+import com.patitasalrescate.data.mock.DAOAdoptante;
 import com.patitasalrescate.model.Adoptante;
 
 import java.util.UUID;
